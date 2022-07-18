@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         # rust-version: [stable, beta, nightly]
-        rust-version: [beta, nightly]
+        rust-version: [nightly]
       fail-fast: false
 
     steps:
