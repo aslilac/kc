@@ -12,3 +12,4 @@ edition = "2021"
 
 [dependencies]
 colored = "2.0.0"
+ignore = "0.4.18"
