@@ -33,13 +33,13 @@ pub enum Language {
     Jai,
     Jakt,
     Java,
-    Julia,
     JavaScript,
+    Julia,
     Kotlin,
-    ObjectiveC,
-    OCaml,
     Nim,
     NuShell,
+    ObjectiveC,
+    OCaml,
     Odin,
     Pascal,
     Php,
@@ -286,25 +286,17 @@ impl LanguageInfo {
                 name: "Java".to_string(),
                 color: Some([205, 55, 47].into()),
             },
-            Julia => LanguageInfo {
-                name: "Julia".to_string(),
-                color: None,
-            },
             JavaScript => LanguageInfo {
                 name: "JavaScript".to_string(),
                 color: Some(0xf1e05a.into()),
             },
+            Julia => LanguageInfo {
+                name: "Julia".to_string(),
+                color: None,
+            },
             Kotlin => LanguageInfo {
                 name: "Kotlin".to_string(),
                 color: Some(0xa97bff.into()),
-            },
-            ObjectiveC => LanguageInfo {
-                name: "Objective-C".to_string(),
-                color: None,
-            },
-            OCaml => LanguageInfo {
-                name: "OCaml".to_string(),
-                color: None,
             },
             Nim => LanguageInfo {
                 name: "Nim".to_string(),
@@ -313,6 +305,14 @@ impl LanguageInfo {
             NuShell => LanguageInfo {
                 name: "NuShell".to_string(),
                 color: Some(0x3aa675.into()),
+            },
+            ObjectiveC => LanguageInfo {
+                name: "Objective-C".to_string(),
+                color: None,
+            },
+            OCaml => LanguageInfo {
+                name: "OCaml".to_string(),
+                color: None,
             },
             Odin => LanguageInfo {
                 name: "Odin".to_string(),

@@ -14,5 +14,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        rust-version: [stable, beta, nightly]
+
     steps:
-      - run: cargo build
+      - uses: actions/checkout@v3
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust-version }}
+          components: clippy, rustfmt
+          default: true
+
+      - run: cargo fmt -- --check
+
+      - run: cargo clippy
+
+      - run: cargo test
+
+      - run: cargo run
