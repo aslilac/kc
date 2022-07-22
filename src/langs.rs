@@ -10,7 +10,12 @@ pub enum Language {
     Astro,
     Bash,
     C,
+    Carbon,
+    Catrina,
+    Clojure,
     Co,
+    Cobol,
+    Css,
     Cxx,
     CoffeeScript,
     Crystal,
@@ -26,18 +31,24 @@ pub enum Language {
     Gn,
     Go,
     Grain,
+    GraphQl,
     Gren,
     Hare,
     Haskell,
+    Html,
     Idris,
     Jai,
     Jakt,
     Java,
     JavaScript,
+    Json,
     Julia,
     Kotlin,
+    Lua,
+    Markdown,
     Nim,
     NuShell,
+    Oak,
     ObjectiveC,
     OCaml,
     Odin,
@@ -45,16 +56,22 @@ pub enum Language {
     Php,
     Perl,
     Porth,
+    PowerShell,
+    Prolog,
     Python,
+    Terraform,
     Turquoise,
+    Racket,
     Ren,
     Ruby,
     Roc,
     Rust,
+    Sass,
     Scala,
     Sql,
     Svelte,
     Swift,
+    Tcl,
     Toml,
     TypeScript,
     Unison,
@@ -63,6 +80,8 @@ pub enum Language {
     VisualBasic,
     Vue,
     WebAssembly,
+    Xml,
+    Yaml,
     Zig,
 }
 
@@ -85,6 +104,28 @@ impl Display for Language {
     }
 }
 
+#[derive(Clone, Debug)]
+pub struct LanguageInfo {
+    pub name: String,
+    pub color: Option<Color>,
+}
+
+macro_rules! info {
+    ( $n:expr $(,)? ) => {{
+        LanguageInfo {
+            name: $n.into(),
+            color: None,
+        }
+    }};
+
+    ( $n:expr , color: $c:expr $(,)? ) => {{
+        LanguageInfo {
+            name: $n.into(),
+            color: Some($c.into()),
+        }
+    }};
+}
+
 impl Language {
     pub fn from_extension(ext: &OsStr) -> Option<Self> {
         use Language::*;
@@ -93,12 +134,18 @@ impl Language {
             "asm" => Some(Assembly),
             "astro" => Some(Astro),
             "c" => Some(C),
+            "carbon" => Some(Carbon),
+            "cbl" => Some(Cobol),
             "cc" => Some(Cxx),
+            "cjs" => Some(JavaScript),
+            "clj" => Some(Clojure),
             "co" => Some(Co),
             "coffee" => Some(CoffeeScript),
             "cpp" => Some(Cxx),
             "cr" => Some(Crystal),
             "cs" => Some(CSharp),
+            "css" => Some(Css),
+            "cts" => Some(TypeScript),
             "cxx" => Some(Cxx),
             "d" => Some(D),
             "dart" => Some(Dart),
@@ -110,307 +157,184 @@ impl Language {
             "gleam" => Some(Gleam),
             "gn" => Some(Gn),
             "go" => Some(Go),
+            "gql" => Some(GraphQl),
             "gr" => Some(Grain),
             "gren" => Some(Gren),
+            "h" => Some(C),
             "ha" => Some(Hare),
+            "hh" => Some(Cxx),
+            "hpp" => Some(Cxx),
             "hs" => Some(Haskell),
+            "htm" => Some(Html),
+            "html" => Some(Html),
+            "hxx" => Some(Cxx),
             "idr" => Some(Idris),
             "jai" => Some(Jai),
             "jakt" => Some(Jakt),
             "java" => Some(Java),
             "jl" => Some(Julia),
             "js" => Some(JavaScript),
+            "json" => Some(Json),
+            "jsonc" => Some(Json),
             "jsx" => Some(JavaScript),
-            "cjs" => Some(JavaScript),
-            "mjs" => Some(JavaScript),
             "kt" => Some(Kotlin),
+            "kts" => Some(Kotlin),
+            "lua" => Some(Lua),
             "m" => Some(ObjectiveC),
+            "md" => Some(Markdown),
+            "mjs" => Some(JavaScript),
             "ml" => Some(OCaml),
+            "mts" => Some(TypeScript),
             "nim" => Some(Nim),
             "nu" => Some(NuShell),
+            "oak" => Some(Oak),
             "odin" => Some(Odin),
             "pas" => Some(Pascal),
             "php" => Some(Php),
             "pl" => Some(Perl),
             "pm" => Some(Perl),
             "porth" => Some(Porth),
+            "pro" => Some(Prolog),
+            "ps1" => Some(PowerShell),
             "py" => Some(Python),
             "q" => Some(Turquoise),
-            "ren" => Some(Ren),
             "rb" => Some(Ruby),
+            "ren" => Some(Ren),
+            "rina" => Some(Catrina),
+            "rkt" => Some(Racket),
             "roc" => Some(Roc),
             "rs" => Some(Rust),
             "s" => Some(Assembly),
+            "sass" => Some(Sass),
             "scala" => Some(Scala),
             "sh" => Some(Bash),
             "sql" => Some(Sql),
             "svelte" => Some(Svelte),
             "swift" => Some(Swift),
+            "tcl" => Some(Tcl),
+            "tf" => Some(Terraform),
             "toml" => Some(Toml),
             "ts" => Some(TypeScript),
             "tsx" => Some(TypeScript),
-            "cts" => Some(TypeScript),
-            "mts" => Some(TypeScript),
             "u" => Some(Unison),
             "v" => Some(V),
             "vale" => Some(Vale),
             "vb" => Some(VisualBasic),
             "vue" => Some(Vue),
             "wat" => Some(WebAssembly),
+            "xml" => Some(Xml),
+            "yaml" => Some(Yaml),
+            "yml" => Some(Yaml),
             "zig" => Some(Zig),
             _ => None,
         }
     }
 }
 
-#[derive(Clone, Debug)]
-pub struct LanguageInfo {
-    pub name: String,
-    pub color: Option<Color>,
-}
-
 impl LanguageInfo {
     pub fn from(lang: &Language) -> Self {
         use Language::*;
 
-        // "c" => Some("C".truecolor(163, 176, 240).to_string()),
-        // "c" => Some("C".truecolor(163, 176, 240).to_string()),
-        // "java" => Some("Java".truecolor(205, 112, 42).to_string()),
-        // "kt" => Some("Kotlin".truecolor(0x7f52ff).to_string()),
         match lang {
-            Assembly => LanguageInfo {
-                name: "Assembly".to_string(),
-                color: None,
-            },
-            Astro => LanguageInfo {
-                name: "Astro".to_string(),
-                color: None,
-            },
-            Bash => LanguageInfo {
-                name: "Bash".to_string(),
-                color: Some([50, 50, 50].into()),
-            },
-            C => LanguageInfo {
-                name: "C".to_string(),
-                color: Some([40, 48, 126].into()),
-            },
-            Co => LanguageInfo {
-                name: "Co".to_string(),
-                color: None,
-            },
-            CoffeeScript => LanguageInfo {
-                name: "CoffeeScript".to_string(),
-                color: Some(0x3e2723.into()),
-            },
-            Crystal => LanguageInfo {
-                name: "Crystal".to_string(),
-                color: None,
-            },
-            CSharp => LanguageInfo {
-                name: "C#".to_string(),
-                color: None,
-            },
-            Cxx => LanguageInfo {
-                name: "C++".to_string(),
-                color: Some([25, 65, 122].into()),
-            },
-            D => LanguageInfo {
-                name: "D".to_string(),
-                color: None,
-            },
-            Dart => LanguageInfo {
-                name: "Dart".to_string(),
-                color: None,
-            },
-            Elm => LanguageInfo {
-                name: "Elm".to_string(),
-                color: Some(0x60b5cc.into()),
-            },
-            Elixir => LanguageInfo {
-                name: "Elixir".to_string(),
-                color: Some(0x4e2a8e.into()),
-            },
-            Erlang => LanguageInfo {
-                name: "Erlang".to_string(),
-                color: Some(0xa2003e.into()),
-            },
-            FSharp => LanguageInfo {
-                name: "F#".to_string(),
-                color: None,
-            },
-            Fortran => LanguageInfo {
-                name: "Fortran".to_string(),
-                color: None,
-            },
-            Gleam => LanguageInfo {
-                name: "Gleam".to_string(),
-                color: Some(0xffaff3.into()),
-            },
-            Gn => LanguageInfo {
-                name: "gn".to_string(),
-                color: None,
-            },
-            Go => LanguageInfo {
-                name: "Go".to_string(),
-                color: Some(0x00add8.into()),
-            },
-            Grain => LanguageInfo {
-                name: "Grain".to_string(),
-                color: Some([255, 133, 14].into()),
-            },
-            Gren => LanguageInfo {
-                name: "Gren".to_string(),
-                color: Some(0xff6600.into()),
-            },
-            Hare => LanguageInfo {
-                name: "Hare".to_string(),
-                color: Some(0x121415.into()),
-            },
-            Haskell => LanguageInfo {
-                name: "Haskell".to_string(),
-                color: Some(0x6144b3.into()),
-            },
-            Idris => LanguageInfo {
-                name: "Idris".to_string(),
-                color: None,
-            },
-            Jai => LanguageInfo {
-                name: "Jai".to_string(),
-                color: None,
-            },
-            Jakt => LanguageInfo {
-                name: "Jakt".to_string(),
-                color: Some([255, 0, 0].into()), // TODO: bad
-            },
-            Java => LanguageInfo {
-                name: "Java".to_string(),
-                color: Some([205, 55, 47].into()),
-            },
-            JavaScript => LanguageInfo {
-                name: "JavaScript".to_string(),
-                color: Some(0xf1e05a.into()),
-            },
-            Julia => LanguageInfo {
-                name: "Julia".to_string(),
-                color: None,
-            },
-            Kotlin => LanguageInfo {
-                name: "Kotlin".to_string(),
-                color: Some(0xa97bff.into()),
-            },
-            Nim => LanguageInfo {
-                name: "Nim".to_string(),
-                color: None,
-            },
-            NuShell => LanguageInfo {
-                name: "NuShell".to_string(),
-                color: Some(0x3aa675.into()),
-            },
-            ObjectiveC => LanguageInfo {
-                name: "Objective-C".to_string(),
-                color: None,
-            },
-            OCaml => LanguageInfo {
-                name: "OCaml".to_string(),
-                color: None,
-            },
-            Odin => LanguageInfo {
-                name: "Odin".to_string(),
-                color: None,
-            },
-            Pascal => LanguageInfo {
-                name: "Pascal".to_string(),
-                color: None,
-            },
-            Php => LanguageInfo {
-                name: "PHP".to_string(),
-                color: None,
-            },
-            Perl => LanguageInfo {
-                name: "Perl".to_string(),
-                color: None,
-            },
-            Porth => LanguageInfo {
-                name: "Porth".to_string(),
-                color: None,
-            },
-            Python => LanguageInfo {
-                name: "Python".to_string(),
-                color: Some(0x3776ab.into()),
-            },
-            Turquoise => LanguageInfo {
-                name: "Turquoise".to_string(),
-                color: Some(0x90eada.into()),
-            },
-            Ren => LanguageInfo {
-                name: "Ren".to_string(),
-                color: None,
-            },
-            Ruby => LanguageInfo {
-                name: "Ruby".to_string(),
-                color: Some(0xcc342d.into()),
-            },
-            Roc => LanguageInfo {
-                name: "Roc".to_string(),
-                color: None,
-            },
-            Rust => LanguageInfo {
-                name: "Rust".to_string(),
-                color: Some(0xa72145.into()),
-            },
-            Scala => LanguageInfo {
-                name: "Scala".to_string(),
-                color: None,
-            },
-            Sql => LanguageInfo {
-                name: "SQL".to_string(),
-                color: None,
-            },
-            Svelte => LanguageInfo {
-                name: "Svelte".to_string(),
-                color: None,
-            },
-            Swift => LanguageInfo {
-                name: "Swift".to_string(),
-                color: Some(0xf05138.into()),
-            },
-            Toml => LanguageInfo {
-                name: "TOML".to_string(),
-                color: None,
-            },
-            TypeScript => LanguageInfo {
-                name: "TypeScript".to_string(),
-                color: Some(0x3178c6.into()),
-            },
-            Unison => LanguageInfo {
-                name: "Unison".to_string(),
-                color: Some([118, 207, 143].into()),
-            },
-            V => LanguageInfo {
-                name: "V".to_string(),
-                color: None,
-            },
-            Vale => LanguageInfo {
-                name: "Vale".to_string(),
-                color: None,
-            },
-            VisualBasic => LanguageInfo {
-                name: "Visual Basic".to_string(),
-                color: None,
-            },
-            Vue => LanguageInfo {
-                name: "Vue".to_string(),
-                color: None,
-            },
-            WebAssembly => LanguageInfo {
-                name: "WebAssembly".to_string(),
-                color: None,
-            },
-            Zig => LanguageInfo {
-                name: "Zig".to_string(),
-                color: Some([235, 168, 66].into()),
-            },
+            Assembly => info!("Assembly"),
+            Astro => info!("Astro"),
+            Bash => info!("Bash", color: [50, 50, 50]),
+            // C => info!("C", [163, 176, 240]),
+            C => info!("C", color: [40, 48, 126]),
+            Carbon => info!("Carbon"),
+            Catrina => info!("Catrina", color: [255, 105, 180]),
+            Clojure => info!("Clojure", color: [0, 112, 255]),
+            Co => info!("Co"),
+            Cobol => info!("Cobol", color: [0, 112, 255]),
+            CoffeeScript => info!("CoffeeScript", color: 0x3e2723),
+            Crystal => info!("Crystal"),
+            CSharp => info!("C#", color: [5, 142, 12]),
+            Css => info!("CSS"),
+            Cxx => info!("C++", color: [25, 65, 122]),
+            D => info!("D"),
+            Dart => info!("Dart", color: 0x40c4ff),
+            Elm => info!("Elm", color: 0x60b5cc),
+            Elixir => info!("Elixir", color: 0x4e2a8e),
+            Erlang => info!("Erlang", color: 0xa2003e),
+            FSharp => info!("F#", color: 0xb845fc),
+            Fortran => info!("Fortran"),
+            Gleam => info!("Gleam", color: 0xffaff3),
+            Gn => info!("gn"),
+            Go => info!("Go", color: 0x00add8),
+            Grain => info!("Grain", color: [255, 133, 14]),
+            GraphQl => info!("GraphQL"),
+            Gren => info!("Gren", color: 0xff6600),
+            Hare => info!("Hare", color: 0x121415),
+            Haskell => info!("Haskell", color: 0x6144b3),
+            Html => info!("HTML"),
+            Idris => info!("Idris"),
+            Jai => info!("Jai"),
+            Jakt => info!("Jakt", color: [255, 0, 0]), // TODO: bad
+            // Java => info!("Java", color: [205, 112, 42]),
+            Java => info!("Java", color: [205, 55, 47]),
+            JavaScript => info!("JavaScript", color: 0xf1e05a),
+            Json => info!("JSON"),
+            Julia => info!("Julia", color: 0xa270ba),
+            // Kotlin => info!("Kotlin", color: 0x7f52ff),
+            Kotlin => info!("Kotlin", color: 0xa97bff),
+            Lua => info!("Lua"),
+            Markdown => info!("Markdown"),
+            Nim => info!("Nim", color: 0xffc200),
+            NuShell => info!("NuShell", color: 0x3aa675),
+            Oak => info!("Oak"),
+            ObjectiveC => info!("Objective-C"),
+            OCaml => info!("OCaml"),
+            Odin => info!("Odin"),
+            Pascal => info!("Pascal"),
+            Perl => info!("Perl"),
+            Php => info!("PHP", color: 0x4f5d95),
+            Porth => info!("Porth"),
+            PowerShell => info!("PowerShell"),
+            Prolog => info!("Prolog"),
+            Python => info!("Python", color: 0x3776ab),
+            Turquoise => info!("Turquoise", color: 0x90eada),
+            Racket => info!("Racket"),
+            Ren => info!("Ren", color: 0xdd5e36),
+            Ruby => info!("Ruby", color: 0xcc342d),
+            Roc => info!("Roc"),
+            Rust => info!("Rust", color: 0xa72145),
+            Sass => info!("Sass"),
+            Scala => info!("Scala"),
+            Sql => info!("SQL", color: 0x336790),
+            Svelte => info!("Svelte"),
+            Swift => info!("Swift", color: 0xf05138),
+            Tcl => info!("Tcl"),
+            Terraform => info!("Terraform", color: 0x844fba),
+            Toml => info!("TOML"),
+            TypeScript => info!("TypeScript", color: 0x3178c6),
+            Unison => info!("Unison", color: [118, 207, 143]),
+            V => info!("V"),
+            Vale => info!("Vale"),
+            VisualBasic => info!("Visual Basic"),
+            Vue => info!("Vue", color: 0x41b883),
+            WebAssembly => info!("WebAssembly"),
+            Xml => info!("XML"),
+            Yaml => info!("YAML"),
+            Zig => info!("Zig", color: [235, 168, 66]),
         }
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct LanguageSummary {
+    pub language: Language,
+    pub lines: usize,
+}
+
+impl Display for LanguageSummary {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:89}  {:>9}", self.language, self.lines)
+    }
+}
+
+impl LanguageSummary {
+    pub fn from(language: Language) -> Self {
+        Self { language, lines: 0 }
     }
 }
 

@@ -3,87 +3,79 @@
 mod fc;
 mod langs;
 
+use colored::Colorize;
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::ffi::OsString;
-use std::fmt;
-use std::fmt::Display;
-use std::fs::read;
 use std::io;
-
-use colored::Colorize;
+use std::path::PathBuf;
 
 use fc::FileContent;
 use langs::Language;
+use langs::LanguageInfo;
+use langs::LanguageSummary;
 
-use crate::langs::LanguageInfo;
-
-#[derive(Clone, Debug)]
-struct LanguageStats {
-    pub language: Language,
-    pub lines: usize,
+fn ignored(path: &PathBuf) -> bool {
+    path.file_name() == Some(OsStr::new("package-lock.json"))
 }
 
-impl Display for LanguageStats {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:89}  {:>9}", self.language, self.lines)
-    }
-}
+fn scan_dir(options: Options) -> io::Result<()> {
+    let dir = &OsString::from(&options.root_dir);
+    let mut summary = HashMap::<Language, LanguageSummary>::default();
 
-impl LanguageStats {
-    pub fn for_(language: Language) -> Self {
-        Self { language, lines: 0 }
-    }
-}
-
-fn scan_dir(dir: &OsStr) -> io::Result<()> {
-    let mut stats = HashMap::<Language, LanguageStats>::default();
-
-    for entry in ignore::Walk::new(dir).flatten() {
-        let path = entry.path();
-
-        if !path.is_file() {
+    for path in ignore::Walk::new(dir)
+        .flatten()
+        .map(|entry| entry.into_path())
+        .filter(|path| path.is_file())
+    {
+        if ignored(&path) {
             continue;
         }
 
-        let text = String::from_utf8(read(path)?);
-        let mut content = FileContent::new(path.to_path_buf());
-
-        // meh
-        let Ok(text) = text else {
+        let Ok(content) = FileContent::new(path.to_path_buf()) else {
             continue;
         };
 
-        let Some(language) = content.language else {
-            continue;
-        };
-
-        content.lines = text.lines().count();
-        stats
-            .entry(language)
-            .or_insert_with(|| LanguageStats::for_(language))
+        summary
+            .entry(content.language)
+            .or_insert_with(|| LanguageSummary::from(content.language))
             .lines += content.lines;
-        // println!("{}", content);
     }
 
     println!();
-    let mut stats = stats.iter().collect::<Vec<_>>();
-    stats.sort_by(|a, b| b.1.lines.cmp(&a.1.lines));
-    stats.iter().for_each(|(_, stat)| println!(" {}", stat));
+    let mut summary = summary.iter().collect::<Vec<_>>();
+    summary.sort_by(|a, b| b.1.lines.cmp(&a.1.lines));
 
-    let total_lines = stats
-        .iter()
+    let result_iter = || {
+        let mut count = 0;
+        summary
+            .iter()
+            .filter(|(lang, _)| !options.excluded.contains(lang))
+            .take_while(move |_| {
+                if let Some(max) = &options.head {
+                    if count >= *max {
+                        return false;
+                    }
+
+                    count += 1;
+                }
+
+                true
+            })
+    };
+
+    result_iter().for_each(|(_, stat)| println!(" {}", stat));
+
+    let total_lines = result_iter()
         .map(|(_, stat)| stat.lines)
         .reduce(|acc, lines| acc + lines)
         .unwrap();
-    // .scan(0, |acc, (_, stat)| Some(*acc + stat.lines));
-    // println!("{:?}", stats);
 
     let mut filled = 0;
 
     println!();
     print!(" ");
-    stats.iter().for_each(|(_, stat)| {
+    result_iter().for_each(|(_, stat)| {
         let percent = stat.lines * 100 / total_lines;
         let lang = LanguageInfo::from(&stat.language);
 
@@ -104,11 +96,65 @@ fn scan_dir(dir: &OsStr) -> io::Result<()> {
     Ok(())
 }
 
-fn main() -> io::Result<()> {
-    let mut args = std::env::args().skip(1);
-    let dir = args.next().unwrap_or(".".to_string());
+#[derive(Clone, Debug)]
+struct Options {
+    excluded: Vec<Language>,
+    head: Option<usize>,
+    root_dir: String,
+}
 
-    scan_dir(&OsString::from(&dir))?;
+impl Default for Options {
+    fn default() -> Self {
+        Self {
+            excluded: vec![],
+            head: None,
+            root_dir: ".".to_string(),
+        }
+    }
+}
+
+fn main() -> io::Result<()> {
+    let mut options = Options::default();
+
+    let mut args = std::env::args().skip(1);
+    // let dir = args.next().unwrap_or(".".to_string());
+
+    while let Some(arg) = args.next() {
+        if (arg.len() == 2 && arg.starts_with('-')) || args.len() > 3 && arg.starts_with("--") {
+            match arg.as_ref() {
+                "-h" | "-t" | "--top" => {
+                    options.head = args
+                        .next()
+                        .expect(&format!("Expected a number to follow {} flag", arg))
+                        .parse::<usize>()
+                        .expect(&format!("Unable to parse {} as a number", arg))
+                        .into();
+                }
+                "-x" | "--exclude" => {
+                    let arg = args.next();
+                    let list = arg
+                        .as_ref()
+                        .map(|value| value.split(","))
+                        .expect("Expected a language identifier to follow -x flag");
+                    for lang in list {
+                        options.excluded.push(
+                            Language::from_extension(OsStr::new(&lang))
+                                .expect("Unrecognized language identifier"),
+                        );
+                    }
+                }
+                _ => {
+                    println!("Unrecognized option: {}", arg);
+                    std::process::exit(1);
+                }
+            }
+        } else {
+            options.root_dir = arg;
+        }
+    }
+
+    // println!("{:?}", options);
+    scan_dir(options)?;
 
     Ok(())
 }

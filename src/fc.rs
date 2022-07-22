@@ -1,5 +1,5 @@
-use std::fmt;
-use std::fmt::Display;
+use std::fs::read_to_string;
+use std::io;
 use std::path::PathBuf;
 
 use crate::langs::Language;
@@ -7,41 +7,30 @@ use crate::langs::Language;
 #[derive(Clone, Debug)]
 pub struct FileContent {
     pub path: PathBuf,
-    pub language: Option<Language>,
+    pub language: Language,
     pub lines: usize,
-    // comments: usize,
-    // code: usize,
-    // blank: usize,
-}
-
-impl Display for FileContent {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(language) = &self.language {
-            write!(
-                f,
-                "File: {:70}   Language: {:10}   Lines: {:>10}",
-                format!("{:?}", self.path.as_os_str()),
-                language,
-                self.lines,
-            )
-        } else {
-            // write!(f, "File: {:?}", self.path.as_os_str())
-            Ok(())
-        }
-    }
 }
 
 impl FileContent {
-    pub fn new(path: PathBuf) -> Self {
-        let language = path.extension().map(Language::from_extension).flatten();
+    pub fn new(path: PathBuf) -> Result<Self, io::Error> {
+        let language = path
+            .extension()
+            .map(Language::from_extension)
+            .flatten()
+            .ok_or_else(|| {
+                io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    format!("Unable to determine language for {:?}", path),
+                )
+            })?;
 
-        Self {
+        let text = read_to_string(&path)?;
+        let lines = text.lines().count();
+
+        Ok(Self {
             path,
             language,
-            lines: 0,
-            // comments: 0,
-            // code: 0,
-            // blank: 0,
-        }
+            lines,
+        })
     }
 }
