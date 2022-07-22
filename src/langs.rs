@@ -239,7 +239,7 @@ impl LanguageInfo {
             Assembly => info!("Assembly"),
             Astro => info!("Astro"),
             Bash => info!("Bash", color: [50, 50, 50]),
-            // C => info!("C", [163, 176, 240]),
+            // C => info!("C", color: [163, 176, 240]),
             C => info!("C", color: [40, 48, 126]),
             Carbon => info!("Carbon"),
             Catrina => info!("Catrina", color: [255, 105, 180]),
