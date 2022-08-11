@@ -1,8 +1,7 @@
-use std::ffi::OsStr;
-use std::fmt;
-use std::fmt::Display;
-
-use colored::Colorize;
+use ::colored::Colorize;
+use ::std::ffi::OsStr;
+use ::std::fmt;
+use ::std::fmt::Display;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Language {

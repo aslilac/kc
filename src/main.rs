@@ -1,15 +1,15 @@
 #![feature(let_else)]
 
+use ::colored::Colorize;
+use ::std::collections::HashMap;
+use ::std::ffi::OsStr;
+use ::std::ffi::OsString;
+use ::std::io;
+use ::std::path::PathBuf;
+use ::std::process::exit;
+
 mod fc;
 mod langs;
-
-use colored::Colorize;
-use std::collections::HashMap;
-use std::ffi::OsStr;
-use std::ffi::OsString;
-use std::io;
-use std::path::PathBuf;
-
 use fc::FileContent;
 use langs::Language;
 use langs::LanguageInfo;
@@ -145,7 +145,7 @@ fn main() -> io::Result<()> {
                 }
                 _ => {
                     println!("Unrecognized option: {}", arg);
-                    std::process::exit(1);
+                    exit(1);
                 }
             }
         } else {

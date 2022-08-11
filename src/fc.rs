@@ -1,6 +1,6 @@
-use std::fs::read_to_string;
-use std::io;
-use std::path::PathBuf;
+use ::std::fs::read_to_string;
+use ::std::io;
+use ::std::path::PathBuf;
 
 use crate::langs::Language;
 
