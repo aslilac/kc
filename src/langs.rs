@@ -12,6 +12,7 @@ pub enum Language {
     Carbon,
     Catrina,
     Clojure,
+    CMake,
     Co,
     Cobol,
     Css,
@@ -45,12 +46,15 @@ pub enum Language {
     Julia,
     Koka,
     Kotlin,
+    Llvm,
     Lua,
+    Make,
     Markdown,
     Nim,
     NuShell,
     Oak,
     ObjectiveC,
+    ObjectiveCxx,
     OCaml,
     Odin,
     Pascal,
@@ -128,6 +132,16 @@ macro_rules! info {
 }
 
 impl Language {
+    pub fn from_file_name(file_name: &OsStr) -> Option<Self> {
+        use Language::*;
+
+        match file_name.to_str()? {
+            "CMakeLists.txt" => Some(CMake),
+            "Makefile" => Some(Make),
+            _ => None,
+        }
+    }
+
     pub fn from_extension(ext: &OsStr) -> Option<Self> {
         use Language::*;
 
@@ -154,8 +168,12 @@ impl Language {
             "elm" => Some(Elm),
             "erl" => Some(Erlang),
             "ex" => Some(Elixir),
+            "f" => Some(Fortran),
+            "for" => Some(Fortran),
             "fs" => Some(FSharp),
             "f90" => Some(Fortran),
+            "f95" => Some(Fortran),
+            "f03" => Some(Fortran),
             "gleam" => Some(Gleam),
             "gn" => Some(Gn),
             "go" => Some(Go),
@@ -182,11 +200,14 @@ impl Language {
             "kk" => Some(Koka),
             "kt" => Some(Kotlin),
             "kts" => Some(Kotlin),
+            "ll" => Some(Llvm),
             "lua" => Some(Lua),
             "m" => Some(ObjectiveC),
             "md" => Some(Markdown),
             "mjs" => Some(JavaScript),
+            "mk" => Some(Make),
             "ml" => Some(OCaml),
+            "mm" => Some(ObjectiveCxx),
             "mts" => Some(TypeScript),
             "nim" => Some(Nim),
             "nu" => Some(NuShell),
@@ -247,6 +268,7 @@ impl LanguageInfo {
             Carbon => info!("Carbon"),
             Catrina => info!("Catrina", color: [255, 105, 180]),
             Clojure => info!("Clojure", color: [0, 112, 255]),
+            CMake => info!("CMake"),
             Co => info!("Co"),
             Cobol => info!("Cobol", color: [0, 112, 255]),
             CoffeeScript => info!("CoffeeScript", color: 0x3e2723),
@@ -282,12 +304,15 @@ impl LanguageInfo {
             Koka => info!("Koka"),
             // Kotlin => info!("Kotlin", color: 0x7f52ff),
             Kotlin => info!("Kotlin", color: 0xa97bff),
+            Llvm => info!("LLVM IR"),
             Lua => info!("Lua"),
+            Make => info!("Make"),
             Markdown => info!("Markdown"),
             Nim => info!("Nim", color: 0xffc200),
             NuShell => info!("NuShell", color: 0x3aa675),
             Oak => info!("Oak"),
             ObjectiveC => info!("Objective-C"),
+            ObjectiveCxx => info!("Objective-C++"),
             OCaml => info!("OCaml"),
             Odin => info!("Odin"),
             Pascal => info!("Pascal"),
