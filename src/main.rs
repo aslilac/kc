@@ -69,7 +69,7 @@ fn scan_dir(options: Options) -> io::Result<()> {
     let total_lines = result_iter()
         .map(|(_, stat)| stat.lines)
         .reduce(|acc, lines| acc + lines)
-        .unwrap();
+        .unwrap_or(0);
 
     let mut filled = 0;
 
@@ -158,3 +158,29 @@ fn main() -> io::Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    #[test]
+    fn scan_is_ok_on_missing_dirs() {
+       let options = Options { root_dir: "/nope_i_am_missing".to_string(), ..Options::default() };
+       let result = scan_dir(options).map_err(|e| e.kind());
+       let expected = Ok(());
+       assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn scan_is_ok_on_empty_dirs() {
+       let empty_path = "./test_fixtures/empty";
+       fs::create_dir_all(empty_path).unwrap();
+
+       let options = Options { root_dir: empty_path.to_string(), ..Options::default() };
+       let result = scan_dir(options).map_err(|e| e.kind());
+       let expected = Ok(());
+       assert_eq!(expected, result);
+    }
+}
+
