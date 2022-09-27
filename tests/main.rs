@@ -1,23 +1,13 @@
 use std::path::Path;
 use std::process::Command;
-use std::sync::Once;
+
+mod setup;
 
 const EXE: &str = "./build/release/kc";
 
-static BUILD: Once = Once::new();
-
-fn setup() {
-	BUILD.call_once(|| {
-		Command::new("cargo")
-			.args(&["build", "--release"])
-			.status()
-			.expect("failed to build test binary");
-	});
-}
-
 #[test]
 fn self_check() {
-	setup();
+	setup::before();
 
 	let result = Command::new(EXE).output().unwrap();
 	let stdout = String::from_utf8_lossy(&result.stdout);
@@ -34,7 +24,7 @@ fn self_check() {
 
 #[test]
 fn self_check_exclude() {
-	setup();
+	setup::before();
 
 	let result = Command::new(EXE).args(["-x", "toml,md"]).output().unwrap();
 	let stdout = String::from_utf8_lossy(&result.stdout);
@@ -46,7 +36,7 @@ fn self_check_exclude() {
 
 #[test]
 fn scan_nonexistent() {
-	setup();
+	setup::before();
 
 	let nonexistent = "./tests/testdata/nonexistent";
 	let nonexistent_path = Path::new(&nonexistent);
@@ -60,7 +50,7 @@ fn scan_nonexistent() {
 
 #[test]
 fn scan_file() {
-	setup();
+	setup::before();
 
 	let result = Command::new(EXE)
 		.arg("./tests/testdata/file")
@@ -73,7 +63,7 @@ fn scan_file() {
 
 #[test]
 fn scan_empty() {
-	setup();
+	setup::before();
 
 	let result = Command::new(EXE)
 		.arg("./tests/testdata/empty")
@@ -86,7 +76,7 @@ fn scan_empty() {
 
 #[test]
 fn scan_rust() {
-	setup();
+	setup::before();
 
 	let result = Command::new(EXE)
 		.arg("./tests/testdata/rust")
@@ -100,20 +90,42 @@ fn scan_rust() {
 
 #[test]
 fn scan_mixed() {
-	setup();
+	setup::before();
 
 	let result = Command::new(EXE)
 		.arg("./tests/testdata/mixed")
 		.output()
 		.unwrap();
 	let stdout = String::from_utf8_lossy(&result.stdout);
+	let mut lines = stdout.lines().skip(1); // skip blank leading line
+
+	let line = lines.next().unwrap();
+	assert!(line.contains("Rust"));
+	assert!(line.contains("6"));
+	let line = lines.next().unwrap();
+	assert!(line.contains("Gleam"));
+	assert!(line.contains("5"));
+	let line = lines.next().unwrap();
+	assert!(line.contains("Make"));
+	assert!(line.contains("4"));
+	let line = lines.next().unwrap();
+	assert!(line.contains("TypeScript"));
+	assert!(line.contains("2"));
+}
+
+#[test]
+fn scan_head() {
+	setup::before();
+
+	let result = Command::new(EXE)
+		.arg("./tests/testdata/mixed")
+		.args(["-h", "3"])
+		.output()
+		.unwrap();
+	let stdout = String::from_utf8_lossy(&result.stdout);
 
 	assert!(stdout.contains("Rust"));
-	assert!(stdout.contains("6"));
 	assert!(stdout.contains("Gleam"));
-	assert!(stdout.contains("5"));
 	assert!(stdout.contains("Make"));
-	assert!(stdout.contains("4"));
-	assert!(stdout.contains("TypeScript"));
-	assert!(stdout.contains("2"));
+	assert!(!stdout.contains("TypeScript"));
 }
