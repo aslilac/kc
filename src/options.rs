@@ -52,11 +52,12 @@ where
 						.into();
 				}
 				"-x" | "--exclude" => {
-					let arg = args.next();
-					let list = arg
+					let exclusions = args.next();
+					let list = exclusions
 						.as_ref()
-						.map(|value| value.as_ref().split(","))
-						.expect("expected a language identifier to follow -x flag");
+						.expect(&format!("expected a language to follow {} flag", arg))
+						.as_ref()
+						.split(",");
 					for lang in list {
 						options.excluded.push(
 							Language::from_extension(OsStr::new(lang))

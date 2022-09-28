@@ -133,22 +133,28 @@ macro_rules! info {
 }
 
 impl Language {
-	pub fn from_file_name(file_name: &OsStr) -> Option<Self> {
+	pub fn from_file_name<S>(file_name: S) -> Option<Self>
+	where
+		S: AsRef<OsStr>,
+	{
 		use Language::*;
 
-		match file_name.to_str()? {
+		match file_name.as_ref().to_str()? {
 			"CMakeLists.txt" => Some(CMake),
 			"Makefile" => Some(Make),
-			_ => Path::new(file_name)
+			_ => Path::new(file_name.as_ref())
 				.extension()
 				.and_then(Language::from_extension),
 		}
 	}
 
-	pub fn from_extension(ext: &OsStr) -> Option<Self> {
+	pub fn from_extension<S>(ext: S) -> Option<Self>
+	where
+		S: AsRef<OsStr>,
+	{
 		use Language::*;
 
-		match ext.to_str()? {
+		match ext.as_ref().to_str()? {
 			"asm" => Some(Assembly),
 			"astro" => Some(Astro),
 			"c" => Some(C),
@@ -404,12 +410,31 @@ impl From<[u8; 3]> for Color {
 	}
 }
 
-impl From<usize> for Color {
-	fn from(color: usize) -> Self {
+impl From<u32> for Color {
+	fn from(color: u32) -> Self {
 		Self {
 			r: ((color >> 16) & 0xff) as u8,
 			g: ((color >> 8) & 0xff) as u8,
 			b: (color & 0xff) as u8,
 		}
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+	use Language::*;
+
+	#[test]
+	fn language_from_file_name() {
+		let check = |inner| Language::from_file_name(OsStr::new(inner));
+
+		assert_eq!(check(""), None);
+		assert_eq!(check("CMakeLists.txt"), Some(CMake));
+		assert_eq!(check("main.rs"), Some(Rust));
+		assert_eq!(check("Makefile"), Some(Make));
+		assert_eq!(check("NotCMake.txt"), None);
+		assert_eq!(check("README.md"), Some(Markdown));
+		assert_eq!(check("main.zig"), Some(Zig));
 	}
 }
