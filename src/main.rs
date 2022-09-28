@@ -44,8 +44,8 @@ fn scan_dir(options: Options) -> io::Result<()> {
 		}
 
 		let Ok(content) = FileContent::new(path.to_path_buf()) else {
-            continue;
-        };
+			continue;
+		};
 
 		summary
 			.entry(content.language)
@@ -90,8 +90,8 @@ fn scan_dir(options: Options) -> io::Result<()> {
 		let lang = LanguageInfo::from(&stat.language);
 
 		let Some(color) = lang.color else {
-            return;
-        };
+			return;
+		};
 
 		filled += percent;
 
