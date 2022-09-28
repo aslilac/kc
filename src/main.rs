@@ -6,6 +6,7 @@ use std::env;
 use std::ffi::OsStr;
 use std::ffi::OsString;
 use std::io;
+use std::io::ErrorKind::*;
 use std::path::Path;
 use std::path::PathBuf;
 
@@ -29,7 +30,7 @@ fn scan_dir(options: Options) -> io::Result<()> {
 
 	if !dir_path.is_dir() {
 		return Err(io::Error::new(
-			io::ErrorKind::NotADirectory,
+			NotADirectory,
 			format!("{} is not a directory", dir_path.display()),
 		));
 	}
