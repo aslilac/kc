@@ -87,6 +87,7 @@ pub enum Language {
 	Vue,
 	WebAssembly,
 	Xml,
+	Yall,
 	Yaml,
 	Zig,
 }
@@ -256,6 +257,7 @@ impl Language {
 			"vue" => Some(Vue),
 			"wat" => Some(WebAssembly),
 			"xml" => Some(Xml),
+			"yall" => Some(Yall),
 			"yaml" => Some(Yaml),
 			"yml" => Some(Yaml),
 			"zig" => Some(Zig),
@@ -353,6 +355,7 @@ impl LanguageInfo {
 			Vue => info!("Vue", color: 0x41b883),
 			WebAssembly => info!("WebAssembly"),
 			Xml => info!("XML"),
+			Yall => info!("Y'all", color: 0xff8f77),
 			Yaml => info!("YAML"),
 			Zig => info!("Zig", color: [235, 168, 66]),
 		}
