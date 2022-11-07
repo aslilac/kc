@@ -105,8 +105,8 @@ impl Display for Language {
 			f,
 			"{} {}",
 			info.color
-				.map(|color| color.on_color(" "))
-				.unwrap_or_else(|| " ".on_white().to_string()),
+				.map(|color| color.color("●"))
+				.unwrap_or_else(|| "●".white().to_string()),
 			name
 		)
 	}
