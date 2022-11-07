@@ -103,10 +103,11 @@ impl Display for Language {
 
 		write!(
 			f,
-			"{}",
+			"{} {}",
 			info.color
-				.map(|color| color.color(&*name))
-				.unwrap_or(name.to_string())
+				.map(|color| color.on_color(" "))
+				.unwrap_or_else(|| " ".on_white().to_string()),
+			name
 		)
 	}
 }
@@ -370,7 +371,7 @@ pub struct LanguageSummary {
 
 impl Display for LanguageSummary {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		write!(f, "{:89}  {:>9}", self.language, self.lines)
+		write!(f, "{:87}  {:>9}", self.language, self.lines)
 	}
 }
 
