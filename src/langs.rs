@@ -39,6 +39,7 @@ pub enum Language {
 	Haskell,
 	Html,
 	Idris,
+	Io,
 	Jai,
 	Jakt,
 	Java,
@@ -200,6 +201,7 @@ impl Language {
 			"html" => Some(Html),
 			"hxx" => Some(Cxx),
 			"idr" => Some(Idris),
+			"io" => Some(Io),
 			"jai" => Some(Jai),
 			"jakt" => Some(Jakt),
 			"java" => Some(Java),
@@ -306,6 +308,7 @@ impl LanguageInfo {
 			Haskell => info!("Haskell", color: 0x6144b3),
 			Html => info!("HTML", color: 0xdf6e3c),
 			Idris => info!("Idris", color: 0xc74350),
+			Io => info!("Io", color: 0xa9188d),
 			Jai => info!("Jai"),
 			Jakt => info!("Jakt", color: [255, 0, 0]), // TODO: bad
 			// Java => info!("Java", color: [205, 112, 42]),
