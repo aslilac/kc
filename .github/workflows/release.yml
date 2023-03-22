@@ -1,0 +1,83 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        release:
+          # TODO: Figure out how to "setup pkg-config for cross-compilation"
+          # - os: ubuntu-latest
+          #   target: aarch64-unknown-linux-gnu
+          #   executable: kc
+
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            executable: kc
+
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+            executable: kc.exe
+
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            executable: kc.exe
+
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            executable: kc
+
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            executable: kc
+
+    name: ${{ matrix.release.target }}
+    runs-on: ${{ matrix.release.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout
+
+      - uses: actions/cache@v3
+        name: Configure cache
+        with:
+          path: |
+            ~/.cargo/
+            ./build/
+          key: release-${{ matrix.release.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: release-${{ matrix.release.target }}-cargo-
+
+      - run: rustup target add ${{ matrix.release.target }}
+        name: Prepare — ${{ matrix.release.target }}
+
+      - run: cargo build --target ${{ matrix.release.target }} --release
+        name: Build — ${{ matrix.release.target }}
+
+      - run: tar -a -cf kc-${{ github.ref_name }}-${{ matrix.release.target }}.tar.gz ${{ matrix.release.executable }}
+        name: Package (tar) — ${{ matrix.release.target }}
+        working-directory: ./build/${{ matrix.release.target }}/release/
+
+      - run: zip -r kc-${{ github.ref_name }}-${{ matrix.release.target }}.zip ${{ matrix.release.executable }}
+        name: Package (zip) — ${{ matrix.release.target }}
+        working-directory: ./build/${{ matrix.release.target }}/release/
+        if: ${{ !startsWith(matrix.release.os, 'windows') }}
+
+      - run: Compress-Archive ${{ matrix.release.executable }} -DestinationPath kc-${{ github.ref_name }}-${{ matrix.release.target }}.zip
+        name: Package (zip) — ${{ matrix.release.target }}
+        working-directory: ./build/${{ matrix.release.target }}/release/
+        if: ${{ startsWith(matrix.release.os, 'windows') }}
+
+      - uses: softprops/action-gh-release@v1
+        name: Publish
+        # prerelease: true
+        with:
+          files: ./build/${{ matrix.release.target }}/release/kc-${{ github.ref_name }}-${{ matrix.release.target }}.*
+
+      # We don't want the archives to be stored in the cache of the build directory
+      - run: rm kc-${{ github.ref_name }}-${{ matrix.release.target }}.*
+        name: Cleanup
+        working-directory: ./build/${{ matrix.release.target }}/release/
