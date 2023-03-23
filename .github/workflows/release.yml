@@ -5,6 +5,36 @@ on:
     tags: ["v*"]
 
 jobs:
+  publish:
+    name: crates.io
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        name: Checkout
+
+      - uses: actions/cache@v3
+        name: Configure cache
+        with:
+          path: |
+            ~/.cargo/
+            ./build/
+          key: publish-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: publish-cargo-
+
+      - run: |
+          rustup toolchain add nightly
+          rustup default nightly
+        name: Prepare — ${{ matrix.release.target }}
+
+      - run: cargo test
+        name: Test
+
+      - run: cargo publish
+        name: Publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
   release:
     strategy:
       fail-fast: false
@@ -37,6 +67,7 @@ jobs:
 
     name: ${{ matrix.release.target }}
     runs-on: ${{ matrix.release.os }}
+    needs: publish
 
     steps:
       - uses: actions/checkout@v3
