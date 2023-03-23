@@ -25,7 +25,7 @@ jobs:
       - run: |
           rustup toolchain add nightly
           rustup default nightly
-        name: Prepare — ${{ matrix.release.target }}
+        name: Prepare
 
       - run: cargo test
         name: Test
