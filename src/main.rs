@@ -75,7 +75,9 @@ fn scan_dir(options: Options) -> io::Result<()> {
 			})
 	};
 
-	result_iter().for_each(|(_, stat)| println!(" {}", stat));
+	let inner_width = options.width - 2; // we have a padding of 1 character on each side
+
+	result_iter().for_each(|(_, stat)| println!(" {:width$}", stat, width = inner_width));
 
 	let total_lines = result_iter()
 		.map(|(_, stat)| stat.lines)
@@ -87,19 +89,20 @@ fn scan_dir(options: Options) -> io::Result<()> {
 	println!();
 	print!(" ");
 	result_iter().for_each(|(_, stat)| {
-		let percent = stat.lines * 100 / total_lines;
+		let percent = stat.lines * inner_width / total_lines;
 		let lang = LanguageInfo::from(&stat.language);
 
 		let Some(color) = lang.color else {
+			filled += percent;
+			print!("{}", " ".repeat(percent).on_white());
 			return;
 		};
 
 		filled += percent;
-
 		print!("{}", color.on_color(&*" ".repeat(percent)));
 	});
 
-	print!("{}", " ".repeat(100 - filled).on_white());
+	print!("{}", " ".repeat(inner_width - filled).on_white());
 
 	println!();
 	println!();

@@ -69,10 +69,12 @@ pub enum Language {
 	Porth,
 	PowerShell,
 	Prolog,
+	PureScript,
 	Python,
 	Terraform,
 	Turquoise,
 	Racket,
+	Raku,
 	Reason,
 	Ren,
 	ReScript,
@@ -89,10 +91,13 @@ pub enum Language {
 	TypeScript,
 	Unison,
 	V,
+	Val,
+	Vala,
 	Vale,
 	VisualBasic,
 	Vue,
 	WebAssembly,
+	Wren,
 	Xml,
 	Yall,
 	Yaml,
@@ -100,46 +105,25 @@ pub enum Language {
 	Zig,
 }
 
+impl Language {
+	pub fn info(&self) -> LanguageInfo {
+		LanguageInfo::from(self)
+	}
+}
+
 impl Display for Language {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		let info = LanguageInfo::from(self);
 
-		let name = f
-			.width()
-			.map(|width| format!("{:width$}", &info.name, width = width))
-			.unwrap_or(info.name.clone());
-
 		write!(
 			f,
-			"{} {}",
+			"{}  {}",
 			info.color
 				.map(|color| color.color("●"))
-				.unwrap_or_else(|| "●".white().to_string()),
-			name
+				.unwrap_or_else(|| "●".to_string()),
+			&info.name
 		)
 	}
-}
-
-#[derive(Clone, Debug)]
-pub struct LanguageInfo {
-	pub name: String,
-	pub color: Option<Color>,
-}
-
-macro_rules! info {
-	( $n:expr $(,)? ) => {{
-		LanguageInfo {
-			name: $n.into(),
-			color: None,
-		}
-	}};
-
-	( $n:expr , color: $c:expr $(,)? ) => {{
-		LanguageInfo {
-			name: $n.into(),
-			color: Some($c.into()),
-		}
-	}};
 }
 
 impl Language {
@@ -192,6 +176,7 @@ impl Language {
 			"elm" => Some(Elm),
 			"erl" => Some(Erlang),
 			"ex" => Some(Elixir),
+			"exs" => Some(Elixir),
 			"f" => Some(Fortran),
 			"for" => Some(Fortran),
 			"fs" => Some(FSharp),
@@ -245,11 +230,17 @@ impl Language {
 			"php" => Some(Php),
 			"pl" => Some(Perl),
 			"pm" => Some(Perl),
+			"pl6" => Some(Raku),
+			"pm6" => Some(Raku),
 			"porth" => Some(Porth),
 			"pro" => Some(Prolog),
 			"ps1" => Some(PowerShell),
+			"purs" => Some(PureScript),
 			"py" => Some(Python),
+			"p6" => Some(Raku),
 			"q" => Some(Turquoise),
+			"raku" => Some(Raku),
+			"rakumod" => Some(Raku),
 			"rb" => Some(Ruby),
 			"re" => Some(Reason),
 			"ren" => Some(Ren),
@@ -272,10 +263,13 @@ impl Language {
 			"tsx" => Some(TypeScript),
 			"u" => Some(Unison),
 			"v" => Some(V),
+			"val" => Some(Val),
+			"vala" => Some(Vala),
 			"vale" => Some(Vale),
 			"vb" => Some(VisualBasic),
 			"vue" => Some(Vue),
 			"wat" => Some(WebAssembly),
+			"wren" => Some(Wren),
 			"xml" => Some(Xml),
 			"yall" => Some(Yall),
 			"yaml" => Some(Yaml),
@@ -285,6 +279,28 @@ impl Language {
 			_ => None,
 		}
 	}
+}
+
+#[derive(Clone, Debug)]
+pub struct LanguageInfo {
+	pub name: String,
+	pub color: Option<Color>,
+}
+
+macro_rules! info {
+	( $n:expr $(,)? ) => {{
+		LanguageInfo {
+			name: $n.into(),
+			color: None,
+		}
+	}};
+
+	( $n:expr , color: $c:expr $(,)? ) => {{
+		LanguageInfo {
+			name: $n.into(),
+			color: Some($c.into()),
+		}
+	}};
 }
 
 impl LanguageInfo {
@@ -358,9 +374,11 @@ impl LanguageInfo {
 			Porth => info!("Porth"),
 			PowerShell => info!("PowerShell"),
 			Prolog => info!("Prolog"),
+			PureScript => info!("PureScript"),
 			Python => info!("Python", color: 0x3776ab),
 			Turquoise => info!("Turquoise", color: 0x90eada),
 			Racket => info!("Racket"),
+			Raku => info!("Raku", color: 0xd0dd2b),
 			Reason => info!("Reason", color: 0xdb4d3f),
 			Ren => info!("Ren", color: 0xdd5e36),
 			ReScript => info!("ReScript", color: 0xD55454),
@@ -378,10 +396,13 @@ impl LanguageInfo {
 			TypeScript => info!("TypeScript", color: 0x3178c6),
 			Unison => info!("Unison", color: [118, 207, 143]),
 			V => info!("V"),
+			Val => info!("Val", color: [0, 119, 179]),
+			Vala => info!("Vala", color: 0x7239b3),
 			Vale => info!("Vale"),
 			VisualBasic => info!("Visual Basic"),
 			Vue => info!("Vue", color: 0x41b883),
 			WebAssembly => info!("WebAssembly", color: 0x654ff0),
+			Wren => info!("Wren", color: 0x383838),
 			Xml => info!("XML"),
 			Yall => info!("Y'all", color: 0xff8f77),
 			Yaml => info!("YAML"),
@@ -399,7 +420,14 @@ pub struct LanguageSummary {
 
 impl Display for LanguageSummary {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		write!(f, "{:87}  {:>9}", self.language, self.lines)
+		// We have to count this length by hand because, unfortunately, escape codes count
+		let left_side_width = self.language.info().name.len() + 4; // circle + 2 leading spaces + 1 trailing space
+		let right_side = format!("{}", self.lines);
+		let width = f.width().unwrap_or(0) - left_side_width - (right_side.len() + 1);
+		let inlay = format!("{:.>width$}", "", width = width)
+			.bright_black()
+			.to_string();
+		write!(f, "{} {} {}", self.language, inlay, right_side)
 	}
 }
 

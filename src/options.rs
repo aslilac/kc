@@ -1,5 +1,8 @@
 use std::ffi::OsStr;
 use std::process::exit;
+use terminal_size::terminal_size;
+use terminal_size::Height;
+use terminal_size::Width;
 
 use crate::langs::Language;
 
@@ -8,14 +11,22 @@ pub struct Options {
 	pub excluded: Vec<Language>,
 	pub head: Option<usize>,
 	pub root_dir: String,
+	pub width: usize,
 }
 
 impl Default for Options {
 	fn default() -> Self {
+		let term_size = terminal_size();
+		let width = match term_size {
+			Some((Width(w), Height(_))) => w.into(),
+			None => 100,
+		};
+
 		Self {
 			excluded: vec![],
 			head: None,
 			root_dir: ".".to_string(),
+			width,
 		}
 	}
 }
