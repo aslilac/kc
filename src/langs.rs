@@ -4,6 +4,8 @@ use std::fmt;
 use std::fmt::Display;
 use std::path::Path;
 
+use crate::color::Color;
+
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Language {
 	Assembly,
@@ -352,6 +354,7 @@ impl LanguageInfo {
 			D => info!("D", color: 0xb03931),
 			Dart => info!("Dart", color: 0x40c4ff),
 			Dhall => info!("Dhall"),
+			Dockerfile => info!("Dockerfile", color: 0x003f8c),
 			Elm => info!("Elm", color: 0x60b5cc),
 			Elixir => info!("Elixir", color: 0x4e2a8e),
 			Erlang => info!("Erlang", color: 0xa2003e),
@@ -459,49 +462,6 @@ impl Display for LanguageSummary {
 impl LanguageSummary {
 	pub fn from(language: Language) -> Self {
 		Self { language, lines: 0 }
-	}
-}
-
-#[derive(Clone, Copy, Debug, Default)]
-pub struct Color {
-	r: u8,
-	g: u8,
-	b: u8,
-}
-
-impl Color {
-	pub fn color<T>(&self, t: T) -> String
-	where
-		T: Colorize,
-	{
-		t.truecolor(self.r, self.g, self.b).to_string()
-	}
-
-	pub fn on_color<T>(&self, t: T) -> String
-	where
-		T: Colorize,
-	{
-		t.on_truecolor(self.r, self.g, self.b).to_string()
-	}
-}
-
-impl From<[u8; 3]> for Color {
-	fn from(color: [u8; 3]) -> Self {
-		Self {
-			r: color[0],
-			g: color[1],
-			b: color[2],
-		}
-	}
-}
-
-impl From<u32> for Color {
-	fn from(color: u32) -> Self {
-		Self {
-			r: ((color >> 16) & 0xff) as u8,
-			g: ((color >> 8) & 0xff) as u8,
-			b: (color & 0xff) as u8,
-		}
 	}
 }
 

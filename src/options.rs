@@ -1,3 +1,4 @@
+use colored::Colorize;
 use std::ffi::OsStr;
 use std::process::exit;
 use terminal_size::terminal_size;
@@ -53,7 +54,20 @@ where
 			}
 
 			match arg.as_ref() {
-				"-h" | "-t" | "--top" => {
+				"-v" | "-V" | "-version" | "--version" => {
+					println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+					exit(0);
+				}
+				"-h" | "-help" | "--help" | "-?" => {
+					println!(
+						"{} {}",
+						env!("CARGO_PKG_NAME").bold().magenta(),
+						env!("CARGO_PKG_VERSION").bold().magenta()
+					);
+					println!("{}", include_str!("./help.txt"));
+					exit(0);
+				}
+				"-t" | "--top" => {
 					options.head = args
 						.next()
 						.expect(&format!("expected a number to follow {} flag", arg))

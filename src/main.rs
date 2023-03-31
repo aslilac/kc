@@ -10,6 +10,7 @@ use std::io::ErrorKind::*;
 use std::path::Path;
 use std::path::PathBuf;
 
+mod color;
 mod fc;
 mod langs;
 mod options;
