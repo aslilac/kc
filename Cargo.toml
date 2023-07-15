@@ -1,6 +1,6 @@
 [package]
 name = "kc"
-version = "0.5.0"
+version = "0.6.0"
 authors = ["McKayla Washburn <mckayla@hey.com>"]
 description = "Kayla's (line) counter (of code) :)"
 keywords = []
