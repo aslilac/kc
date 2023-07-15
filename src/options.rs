@@ -9,10 +9,11 @@ use crate::langs::Language;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Options {
-	pub excluded: Vec<Language>,
-	pub head: Option<usize>,
 	pub root_dir: String,
 	pub width: usize,
+	pub include_hidden: bool,
+	pub head: Option<usize>,
+	pub excluded: Vec<Language>,
 }
 
 impl Default for Options {
@@ -24,10 +25,11 @@ impl Default for Options {
 		};
 
 		Self {
-			excluded: vec![],
-			head: None,
 			root_dir: ".".to_string(),
 			width,
+			include_hidden: false,
+			head: None,
+			excluded: vec![],
 		}
 	}
 }
@@ -66,6 +68,9 @@ where
 					);
 					println!("{}", include_str!("./help.txt"));
 					exit(0);
+				}
+				"-a" => {
+					options.include_hidden = true;
 				}
 				"-t" | "--top" => {
 					options.head = args

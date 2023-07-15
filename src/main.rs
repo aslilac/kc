@@ -36,7 +36,11 @@ fn scan_dir(options: Options) -> io::Result<()> {
 		));
 	}
 
-	for path in ignore::Walk::new(dir_path)
+	let walk = ignore::WalkBuilder::new(dir_path)
+		.hidden(!options.include_hidden)
+		.build();
+
+	for path in walk
 		.flatten()
 		.map(|entry| entry.into_path())
 		.filter(|path| path.is_file())
