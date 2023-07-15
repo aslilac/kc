@@ -49,8 +49,8 @@ where
 
 		while let Some(arg) = args.next() {
 			let arg = arg.as_ref();
-			let is_flag =
-				(arg.len() > 2 && arg.starts_with('-')) || (arg.len() > 3 && arg.starts_with("--"));
+			let is_flag = (arg.len() >= 2 && arg.starts_with('-'))
+				|| (arg.len() >= 3 && arg.starts_with("--"));
 
 			if !is_flag {
 				options.root_dir = arg.to_string();

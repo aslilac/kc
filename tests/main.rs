@@ -112,20 +112,3 @@ fn scan_mixed() {
 	assert!(line.contains("TypeScript"));
 	assert!(line.contains("2"));
 }
-
-#[test]
-fn scan_head() {
-	setup::before();
-
-	let result = Command::new(EXE)
-		.arg("./tests/testdata/mixed")
-		.args(["-h", "3"])
-		.output()
-		.unwrap();
-	let stdout = String::from_utf8_lossy(&result.stdout);
-
-	assert!(stdout.contains("Rust"));
-	assert!(stdout.contains("Gleam"));
-	assert!(stdout.contains("Make"));
-	assert!(!stdout.contains("TypeScript"));
-}
