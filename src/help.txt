@@ -2,5 +2,6 @@ usage: kc [options] [directory]
 
   -h, --help          show this help message
   -a                  include hidden files and directories
+  -A                  include ignored files and directories
   -t, --top [number]  only show the top few languages
   -x, --exclude       exclude a language based on name or file extension

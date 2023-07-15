@@ -38,6 +38,7 @@ fn scan_dir(options: Options) -> io::Result<()> {
 
 	let walk = ignore::WalkBuilder::new(dir_path)
 		.hidden(!options.include_hidden)
+		.ignore(!options.include_ignored)
 		.build();
 
 	for path in walk

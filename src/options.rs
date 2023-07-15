@@ -12,6 +12,7 @@ pub struct Options {
 	pub root_dir: String,
 	pub width: usize,
 	pub include_hidden: bool,
+	pub include_ignored: bool,
 	pub head: Option<usize>,
 	pub excluded: Vec<Language>,
 }
@@ -28,6 +29,7 @@ impl Default for Options {
 			root_dir: ".".to_string(),
 			width,
 			include_hidden: false,
+			include_ignored: false,
 			head: None,
 			excluded: vec![],
 		}
@@ -47,8 +49,8 @@ where
 
 		while let Some(arg) = args.next() {
 			let arg = arg.as_ref();
-			let is_flag = (arg.len() == 2 && arg.starts_with('-'))
-				|| (arg.len() > 3 && arg.starts_with("--"));
+			let is_flag =
+				(arg.len() > 2 && arg.starts_with('-')) || (arg.len() > 3 && arg.starts_with("--"));
 
 			if !is_flag {
 				options.root_dir = arg.to_string();
@@ -72,7 +74,14 @@ where
 				"-a" => {
 					options.include_hidden = true;
 				}
-				"-t" | "--top" => {
+				"-A" => {
+					options.include_ignored = true;
+				}
+				"-aA" | "-Aa" | "-aa" | "-AA" => {
+					options.include_hidden = true;
+					options.include_ignored = true;
+				}
+				"-t" | "-top" | "--top" => {
 					options.head = args
 						.next()
 						.expect(&format!("expected a number to follow {} flag", arg))
@@ -81,7 +90,7 @@ where
 						.expect(&format!("unable to parse {} as a number", arg))
 						.into();
 				}
-				"-x" | "--exclude" => {
+				"-x" | "-exclude" | "--exclude" => {
 					let exclusions = args.next();
 					let list = exclusions
 						.as_ref()
