@@ -1,10 +1,11 @@
-use colored::Colorize;
 use std::ffi::OsStr;
 use std::fmt;
 use std::fmt::Display;
 use std::path::Path;
+use std::path::PathBuf;
 
 use crate::color::Color;
+use crate::reporters::terminal::TerminalLanguageSummary;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Language {
@@ -78,8 +79,6 @@ pub enum Language {
 	Prolog,
 	PureScript,
 	Python,
-	Terraform,
-	Turquoise,
 	R,
 	Racket,
 	Raku,
@@ -96,7 +95,9 @@ pub enum Language {
 	Svelte,
 	Swift,
 	Tcl,
+	Terraform,
 	Toml,
+	Turquoise,
 	TypeScript,
 	Unison,
 	V,
@@ -127,7 +128,8 @@ impl Display for Language {
 		write!(
 			f,
 			"{}  {}",
-			info.color
+			info
+				.color
 				.map(|color| color.color("●"))
 				.unwrap_or_else(|| "●".to_string()),
 			&info.name
@@ -154,13 +156,132 @@ impl Language {
 		}
 	}
 
+	pub fn from_name<S>(name: S) -> Option<Self>
+	where
+		S: AsRef<str>,
+	{
+		use Language::*;
+
+		match name.as_ref().to_ascii_lowercase().as_ref() {
+			"assembly" => Some(Assembly),
+			"astro" => Some(Astro),
+			"bash" => Some(Bash),
+			"batch" => Some(Batch),
+			"bqn" => Some(Bqn),
+			"brainfuck" => Some(Brainfuck),
+			"c" => Some(C),
+			"carbon" => Some(Carbon),
+			"clojure" => Some(Clojure),
+			"cmake" => Some(CMake),
+			"co" => Some(Co),
+			"cobol" => Some(Cobol),
+			"coffeescript" => Some(CoffeeScript),
+			"cognate" => Some(Cognate),
+			"commonlisp" => Some(CommonLisp),
+			"crystal" => Some(Crystal),
+			"csharp" => Some(CSharp),
+			"c#" => Some(CSharp),
+			"css" => Some(Css),
+			"cue" => Some(Cue),
+			"c++" => Some(Cxx),
+			"d" => Some(D),
+			"dart" => Some(Dart),
+			"dhall" => Some(Dhall),
+			"dockerfile" => Some(Dockerfile),
+			"elm" => Some(Elm),
+			"erlang" => Some(Erlang),
+			"elixir" => Some(Elixir),
+			"fortran" => Some(Fortran),
+			"fsharp" => Some(FSharp),
+			"f#" => Some(FSharp),
+			"gleam" => Some(Gleam),
+			"gn" => Some(Gn),
+			"go" => Some(Go),
+			"graphql" => Some(GraphQl),
+			"grain" => Some(Grain),
+			"gren" => Some(Gren),
+			"hare" => Some(Hare),
+			"haskell" => Some(Haskell),
+			"html" => Some(Html),
+			"haxe" => Some(Haxe),
+			"idris" => Some(Idris),
+			"io" => Some(Io),
+			"jai" => Some(Jai),
+			"jakt" => Some(Jakt),
+			"java" => Some(Java),
+			"julia" => Some(Julia),
+			"javascript" => Some(JavaScript),
+			"json" => Some(Json),
+			"koka" => Some(Koka),
+			"kotlin" => Some(Kotlin),
+			"llvm" => Some(Llvm),
+			"lua" => Some(Lua),
+			"objectivec" => Some(ObjectiveC),
+			"objective-c" => Some(ObjectiveC),
+			"markdown" => Some(Markdown),
+			"make" => Some(Make),
+			"ocaml" => Some(OCaml),
+			"objectivec++" => Some(ObjectiveCxx),
+			"objective-c++" => Some(ObjectiveCxx),
+			"nim" => Some(Nim),
+			"nix" => Some(Nix),
+			"nushell" => Some(NuShell),
+			"oak" => Some(Oak),
+			"odin" => Some(Odin),
+			"pascal" => Some(Pascal),
+			"php" => Some(Php),
+			"perl" => Some(Perl),
+			"porth" => Some(Porth),
+			"prolog" => Some(Prolog),
+			"powershell" => Some(PowerShell),
+			"purescript" => Some(PureScript),
+			"python" => Some(Python),
+			"r" => Some(R),
+			"racket" => Some(Racket),
+			"raku" => Some(Raku),
+			"reason" => Some(Reason),
+			"reasonml" => Some(Reason),
+			"ren" => Some(Ren),
+			"rescript" => Some(ReScript),
+			"roc" => Some(Roc),
+			"ruby" => Some(Ruby),
+			"rust" => Some(Rust),
+			"sass" => Some(Sass),
+			"scala" => Some(Scala),
+			"scmeme" => Some(Scheme),
+			"sql" => Some(Sql),
+			"svelte" => Some(Svelte),
+			"swift" => Some(Swift),
+			"tcl" => Some(Tcl),
+			"terraform" => Some(Terraform),
+			"toml" => Some(Toml),
+			"turquoise" => Some(Turquoise),
+			"typescript" => Some(TypeScript),
+			"unison" => Some(Unison),
+			"v" => Some(V),
+			"val" => Some(Val),
+			"vala" => Some(Vala),
+			"vale" => Some(Vale),
+			"visualbasic" => Some(VisualBasic),
+			"vue" => Some(Vue),
+			"webassembly" => Some(WebAssembly),
+			"wren" => Some(Wren),
+			"xml" => Some(Xml),
+			"yall" => Some(Yall),
+			"yaml" => Some(Yaml),
+			"yuescript" => Some(YueScript),
+			"zig" => Some(Zig),
+			_ => None,
+		}
+	}
+
 	pub fn from_extension<S>(ext: S) -> Option<Self>
 	where
 		S: AsRef<OsStr>,
 	{
 		use Language::*;
 
-		match ext.as_ref().to_str()? {
+		match ext.as_ref().to_str()?.to_ascii_lowercase().as_ref() {
 			"asm" => Some(Assembly),
 			"astro" => Some(Astro),
 			"b" => Some(Brainfuck),
@@ -241,6 +362,7 @@ impl Language {
 			"mjs" => Some(JavaScript),
 			"mk" => Some(Make),
 			"ml" => Some(OCaml),
+			"mli" => Some(OCaml),
 			"mm" => Some(ObjectiveCxx),
 			"mts" => Some(TypeScript),
 			"nim" => Some(Nim),
@@ -348,7 +470,7 @@ impl LanguageInfo {
 			CMake => info!("CMake"),
 			Co => info!("Co"),
 			Cobol => info!("Cobol", color: [0, 112, 255]),
-			CoffeeScript => info!("CoffeeScript", color: 0x3e2723),
+			CoffeeScript => info!("C`offeeScript", color: 0x3e2723),
 			Cognate => info!("Cognate"),
 			CommonLisp => info!("CommonLisp", color: 0x3fb68b),
 			Crystal => info!("Crystal", color: 0x000000),
@@ -449,24 +571,20 @@ impl LanguageInfo {
 pub struct LanguageSummary {
 	pub language: Language,
 	pub lines: usize,
-}
-
-impl Display for LanguageSummary {
-	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-		// We have to count this length by hand because, unfortunately, escape codes count
-		let left_side_width = self.language.info().name.len() + 4; // circle + 2 leading spaces + 1 trailing space
-		let right_side = format!("{}", self.lines);
-		let width = f.width().unwrap_or(0) - left_side_width - (right_side.len() + 1);
-		let inlay = format!("{:.>width$}", "", width = width)
-			.bright_black()
-			.to_string();
-		write!(f, "{} {} {}", self.language, inlay, right_side)
-	}
+	pub files: Vec<PathBuf>,
 }
 
 impl LanguageSummary {
 	pub fn from(language: Language) -> Self {
-		Self { language, lines: 0 }
+		Self {
+			language,
+			lines: 0,
+			files: vec![],
+		}
+	}
+
+	pub fn to_terminal_display(&self) -> TerminalLanguageSummary {
+		TerminalLanguageSummary::new(self)
 	}
 }
 

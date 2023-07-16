@@ -1,4 +1,5 @@
 use colored::Colorize;
+use std::collections::HashSet;
 use std::ffi::OsStr;
 use std::process::exit;
 use terminal_size::terminal_size;
@@ -6,15 +7,18 @@ use terminal_size::Height;
 use terminal_size::Width;
 
 use crate::langs::Language;
+use crate::reporters::Reporter;
+use crate::reporters::Reporter::*;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Options {
 	pub root_dir: String,
 	pub width: usize,
+	pub reporter: Reporter,
 	pub include_hidden: bool,
 	pub include_ignored: bool,
 	pub head: Option<usize>,
-	pub excluded: Vec<Language>,
+	pub excluded: HashSet<Language>,
 }
 
 impl Default for Options {
@@ -28,10 +32,11 @@ impl Default for Options {
 		Self {
 			root_dir: ".".to_string(),
 			width,
+			reporter: Terminal,
 			include_hidden: false,
 			include_ignored: false,
 			head: None,
-			excluded: vec![],
+			excluded: Default::default(),
 		}
 	}
 }
@@ -49,8 +54,8 @@ where
 
 		while let Some(arg) = args.next() {
 			let arg = arg.as_ref();
-			let is_flag = (arg.len() >= 2 && arg.starts_with('-'))
-				|| (arg.len() >= 3 && arg.starts_with("--"));
+			let is_flag =
+				(arg.len() >= 2 && arg.starts_with('-')) || (arg.len() >= 3 && arg.starts_with("--"));
 
 			if !is_flag {
 				options.root_dir = arg.to_string();
@@ -70,6 +75,14 @@ where
 					);
 					println!("{}", include_str!("./help.txt"));
 					exit(0);
+				}
+				"-reporter" | "--reporter" => {
+					options.reporter = args
+						.next()
+						.expect(&format!("expected a reporter to follow {} flag", arg))
+						.as_ref()
+						.parse::<Reporter>()
+						.expect(&format!("{} flag expects one of {}", arg, Reporter::help()));
 				}
 				"-a" => {
 					options.include_hidden = true;
@@ -98,9 +111,10 @@ where
 						.as_ref()
 						.split(",");
 					for lang in list {
-						options.excluded.push(
-							Language::from_extension(OsStr::new(lang))
-								.expect("unrecognized language identifier"),
+						options.excluded.insert(
+							Language::from_name(lang)
+								.or_else(|| Language::from_extension(OsStr::new(lang)))
+								.expect(&format!("unrecognized language identifier \"{}\"", lang)),
 						);
 					}
 				}
@@ -141,7 +155,7 @@ mod tests {
 		assert_eq!(
 			["-x", "ts"].into_iter().collect::<Options>(),
 			Options {
-				excluded: vec![TypeScript],
+				excluded: [TypeScript].into(),
 				..Default::default()
 			},
 		);
@@ -149,7 +163,15 @@ mod tests {
 		assert_eq!(
 			["--exclude", "ts"].into_iter().collect::<Options>(),
 			Options {
-				excluded: vec![TypeScript],
+				excluded: [TypeScript].into(),
+				..Default::default()
+			},
+		);
+
+		assert_eq!(
+			["-x", "BQN,TypeScript"].into_iter().collect::<Options>(),
+			Options {
+				excluded: [Bqn, TypeScript].into(),
 				..Default::default()
 			},
 		);
@@ -159,7 +181,7 @@ mod tests {
 				.into_iter()
 				.collect::<Options>(),
 			Options {
-				excluded: vec![Gleam, Rust, TypeScript],
+				excluded: [Gleam, Rust, TypeScript].into(),
 				..Default::default()
 			},
 		);
@@ -177,7 +199,7 @@ mod tests {
 				.into_iter()
 				.collect::<Options>(),
 			Options {
-				excluded: vec![TypeScript],
+				excluded: [TypeScript].into(),
 				head: Some(10),
 				root_dir: "./test".to_string(),
 				..Default::default()

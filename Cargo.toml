@@ -11,6 +11,7 @@ documentation = "https://docs.rs/crate/kc"
 edition = "2021"
 
 [dependencies]
+anyhow = "1.0.72"
 colored = "2.0.0"
 ignore = "0.4.20"
 terminal_size = "0.2.6"
