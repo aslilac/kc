@@ -1,6 +1,6 @@
 [package]
 name = "kc"
-version = "0.6.1"
+version = "0.6.2"
 authors = ["McKayla Washburn <mckayla@hey.com>"]
 description = "Kayla's (line) counter (of code) :)"
 keywords = []
@@ -12,5 +12,5 @@ edition = "2021"
 
 [dependencies]
 colored = "2.0.0"
-ignore = "0.4.18"
-terminal_size = "0.2.5"
+ignore = "0.4.20"
+terminal_size = "0.2.6"
