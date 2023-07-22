@@ -8,3 +8,6 @@ usage: kc [options] [directory]
       only show the top few languages
   -x, --exclude [name | extension]
       exclude a language based on name or file extension
+  --reporter [name]
+      specify which reporter to use
+      default: terminal
