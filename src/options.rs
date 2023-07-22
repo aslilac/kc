@@ -100,7 +100,7 @@ where
 						.expect(&format!("expected a number to follow {} flag", arg))
 						.as_ref()
 						.parse::<usize>()
-						.expect(&format!("unable to parse {} as a number", arg))
+						.expect(&format!("unable to parse \"{}\" as a number", arg))
 						.into();
 				}
 				"-x" | "-exclude" | "--exclude" => {
