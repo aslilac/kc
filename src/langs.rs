@@ -471,7 +471,7 @@ impl LanguageInfo {
 			CMake => info!("CMake"),
 			Co => info!("Co"),
 			Cobol => info!("Cobol", color: [0, 112, 255]),
-			CoffeeScript => info!("C`offeeScript", color: 0x3e2723),
+			CoffeeScript => info!("CoffeeScript", color: 0x3e2723),
 			Cognate => info!("Cognate"),
 			CommonLisp => info!("CommonLisp", color: 0x3fb68b),
 			Crystal => info!("Crystal", color: 0x000000),
