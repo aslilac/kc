@@ -21,6 +21,31 @@ fn self_check() {
 	// because it's all in testdata/ which is ignored by the .ignore file at the repo root.
 	assert!(!stdout.contains("Gleam"));
 	assert!(!stdout.contains("TypeScript"));
+	// There's Yaml in the codebase as well, but only in .github/, which is hidden
+	assert!(!stdout.contains("YAML"));
+
+	let result = Command::new(EXE).arg("-a").output().unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+	// We're including hidden stuff now!
+	assert!(stdout.contains("YAML"));
+	// ...but not ignored stuff
+	assert!(!stdout.contains("Gleam"));
+
+	let result = Command::new(EXE).arg("-A").output().unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+	// We're including ignored stuff now!
+	assert!(stdout.contains("Gleam"));
+	// ...but not hidden stuff
+	assert!(!stdout.contains("YAML"));
+
+	let result = Command::new(EXE).arg("-aa").output().unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+	// We're including ignored and hidden stuff now!
+	assert!(stdout.contains("Gleam"));
+	assert!(stdout.contains("YAML"));
 }
 
 #[test]
@@ -70,7 +95,7 @@ fn scan_empty() {
 	setup::before();
 
 	let result = Command::new(EXE)
-		.arg("./tests/testdata/empty")
+		.arg("tests/testdata/empty/")
 		.output()
 		.unwrap();
 	assert!(!result.status.success());
@@ -84,7 +109,7 @@ fn scan_rust() {
 	setup::before();
 
 	let result = Command::new(EXE)
-		.arg("./tests/testdata/rust")
+		.arg("tests/testdata/rust/")
 		.output()
 		.unwrap();
 	assert!(result.status.success());
@@ -99,7 +124,7 @@ fn scan_mixed() {
 	setup::before();
 
 	let result = Command::new(EXE)
-		.arg("./tests/testdata/mixed")
+		.arg("tests/testdata/mixed")
 		.output()
 		.unwrap();
 	assert!(result.status.success());
@@ -118,6 +143,30 @@ fn scan_mixed() {
 	let line = lines.next().unwrap();
 	assert!(line.contains("TypeScript"));
 	assert!(line.contains("2"));
+
+	let result = Command::new(EXE)
+		.args(["-l", "tests/testdata/mixed/"])
+		.output()
+		.unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+	assert_eq!(stdout, "17\n");
+
+	let result = Command::new(EXE)
+		.args(["-l", "tests/testdata/mixed/", "-t", "2"])
+		.output()
+		.unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+	assert_eq!(stdout, "11\n");
+
+	let result = Command::new(EXE)
+		.args(["-l", "tests/testdata/mixed/", "-x", "rust,gleam"])
+		.output()
+		.unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+	assert_eq!(stdout, "6\n");
 }
 
 #[test]
@@ -126,7 +175,7 @@ fn scan_hidden() {
 
 	// Scan without including hidden files should fail
 	let result = Command::new(EXE)
-		.arg("./tests/testdata/hidden")
+		.arg("tests/testdata/hidden")
 		.output()
 		.unwrap();
 	assert!(!result.status.success());
@@ -139,7 +188,7 @@ fn scan_hidden() {
 	// Scan *with* hidden files included should report the hidden files
 	let result = Command::new(EXE)
 		.arg("-a")
-		.arg("./tests/testdata/hidden")
+		.arg("tests/testdata/hidden")
 		.output()
 		.unwrap();
 	assert!(result.status.success());

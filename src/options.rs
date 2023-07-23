@@ -17,8 +17,10 @@ pub struct Options {
 	pub reporter: Reporter,
 	pub include_hidden: bool,
 	pub include_ignored: bool,
+	pub blame: bool,
 	pub head: Option<usize>,
 	pub excluded: HashSet<Language>,
+	pub total_lines_only: bool,
 }
 
 impl Default for Options {
@@ -35,8 +37,10 @@ impl Default for Options {
 			reporter: Terminal,
 			include_hidden: false,
 			include_ignored: false,
+			blame: false,
 			head: None,
 			excluded: Default::default(),
+			total_lines_only: false,
 		}
 	}
 }
@@ -94,6 +98,9 @@ where
 					options.include_hidden = true;
 					options.include_ignored = true;
 				}
+				"-blame" | "--blame" => {
+					options.blame = true;
+				}
 				"-t" | "-top" | "--top" => {
 					options.head = args
 						.next()
@@ -117,6 +124,14 @@ where
 								.expect(&format!("unrecognized language identifier \"{}\"", lang)),
 						);
 					}
+				}
+				"-l" | "-lines" | "--lines" => {
+					if options.head.is_some() {
+						println!("{} is incompatible with -t/--top", arg);
+						exit(64);
+					}
+
+					options.total_lines_only = true;
 				}
 				_ => {
 					println!("unrecognized option: {}", arg);
@@ -202,6 +217,14 @@ mod tests {
 				excluded: [TypeScript].into(),
 				head: Some(10),
 				root_dir: "./test".to_string(),
+				..Default::default()
+			},
+		);
+
+		assert_eq!(
+			["-l"].into_iter().collect::<Options>(),
+			Options {
+				total_lines_only: true,
 				..Default::default()
 			},
 		);

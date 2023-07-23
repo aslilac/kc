@@ -54,7 +54,6 @@ pub fn scan(options: Options) -> anyhow::Result<()> {
 		summary.files.push(path);
 	}
 
-	println!();
 	let mut summary = summary.iter().collect::<Vec<_>>();
 	summary.sort_by(|a, b| b.1.lines.cmp(&a.1.lines));
 
@@ -75,12 +74,22 @@ pub fn scan(options: Options) -> anyhow::Result<()> {
 			})
 	};
 
+	// We wait until here to handle `--lines` because it allows us to still respect
+	// other options like `--exclude` and `--top`.
+	if options.total_lines_only {
+		let total_lines = result_iter().map(|summary| summary.1.lines).sum::<usize>();
+
+		println!("{}", total_lines);
+		return Ok(());
+	}
+
 	let inner_width = options.width - 2; // we have a padding of 1 character on each side
 
+	println!();
 	result_iter().for_each(|(_, stat)| {
 		println!(
 			" {:width$}",
-			stat.to_terminal_display(),
+			stat.to_terminal_display(&options),
 			width = inner_width
 		)
 	});
@@ -97,22 +106,22 @@ pub fn scan(options: Options) -> anyhow::Result<()> {
 		let percent = (stat.lines * inner_width)
 			.checked_div(total_lines)
 			.unwrap_or(0);
-		let lang = LanguageInfo::from(&stat.language);
-
-		let Some(color) = lang.color else {
-			filled += percent;
-			print!("{}", " ".repeat(percent).on_white());
+		if percent == 0 {
 			return;
-		};
+		}
 
 		// Print padding and such on first fill
 		if filled == 0 {
 			println!();
 			print!(" ");
 		}
-
 		filled += percent;
-		print!("{}", color.on_color(&*" ".repeat(percent)));
+
+		let lang = LanguageInfo::from(&stat.language);
+		match lang.color {
+			Some(color) => print!("{}", color.on_color(&*" ".repeat(percent))),
+			None => print!("{}", " ".repeat(percent).on_white()),
+		};
 	});
 
 	// Don't print a bar at all if it'd just all be uncategorized.

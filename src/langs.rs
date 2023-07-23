@@ -5,6 +5,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use crate::color::Color;
+use crate::options::Options;
 use crate::reporters::terminal::TerminalLanguageSummary;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -583,8 +584,8 @@ impl LanguageSummary {
 		}
 	}
 
-	pub fn to_terminal_display(&self) -> TerminalLanguageSummary {
-		TerminalLanguageSummary::new(self)
+	pub fn to_terminal_display(&self, options: &Options) -> TerminalLanguageSummary {
+		TerminalLanguageSummary::new(self, options)
 	}
 }
 
