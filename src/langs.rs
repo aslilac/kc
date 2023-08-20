@@ -18,7 +18,6 @@ pub enum Language {
 	Brainfuck,
 	C,
 	Carbon,
-	Catrina,
 	Clojure,
 	CMake,
 	Co,
@@ -39,6 +38,7 @@ pub enum Language {
 	Elixir,
 	Erlang,
 	Fortran,
+	Fish,
 	FSharp,
 	Gleam,
 	Gn,
@@ -139,24 +139,6 @@ impl Display for Language {
 }
 
 impl Language {
-	pub fn from_file_name<S>(file_name: S) -> Option<Self>
-	where
-		S: AsRef<OsStr>,
-	{
-		use Language::*;
-
-		match file_name.as_ref().to_str()? {
-			"Cakefile" => Some(CoffeeScript),
-			"CMakeLists.txt" => Some(CMake),
-			"Dockerfile" => Some(Dockerfile),
-			"Makefile" => Some(Make),
-			"Rakefile" => Some(Ruby),
-			_ => Path::new(file_name.as_ref())
-				.extension()
-				.and_then(Language::from_extension),
-		}
-	}
-
 	pub fn from_name<S>(name: S) -> Option<Self>
 	where
 		S: AsRef<str>,
@@ -193,6 +175,7 @@ impl Language {
 			"erlang" => Some(Erlang),
 			"elixir" => Some(Elixir),
 			"fortran" => Some(Fortran),
+			"fish" => Some(Fish),
 			"fsharp" => Some(FSharp),
 			"f#" => Some(FSharp),
 			"gleam" => Some(Gleam),
@@ -276,6 +259,24 @@ impl Language {
 		}
 	}
 
+	pub fn from_file_name<S>(file_name: S) -> Option<Self>
+	where
+		S: AsRef<OsStr>,
+	{
+		use Language::*;
+
+		match file_name.as_ref().to_str()? {
+			"Cakefile" => Some(CoffeeScript),
+			"CMakeLists.txt" => Some(CMake),
+			"Dockerfile" => Some(Dockerfile),
+			"Makefile" => Some(Make),
+			"Rakefile" => Some(Ruby),
+			_ => Path::new(file_name.as_ref())
+				.extension()
+				.and_then(Language::from_extension),
+		}
+	}
+
 	pub fn from_extension<S>(ext: S) -> Option<Self>
 	where
 		S: AsRef<OsStr>,
@@ -319,6 +320,7 @@ impl Language {
 			"ex" => Some(Elixir),
 			"exs" => Some(Elixir),
 			"f" => Some(Fortran),
+			"fish" => Some(Fish),
 			"for" => Some(Fortran),
 			"fs" => Some(FSharp),
 			"fsproj" => Some(Xml),
@@ -391,7 +393,6 @@ impl Language {
 			"re" => Some(Reason),
 			"ren" => Some(Ren),
 			"res" => Some(ReScript),
-			"rina" => Some(Catrina),
 			"rkt" => Some(Racket),
 			"roc" => Some(Roc),
 			"rs" => Some(Rust),
@@ -466,7 +467,6 @@ impl LanguageInfo {
 			// C => info!("C", color: [163, 176, 240]),
 			C => info!("C", color: [40, 48, 126]),
 			Carbon => info!("Carbon"),
-			Catrina => info!("Catrina", color: [255, 105, 180]),
 			Clojure => info!("Clojure", color: [0, 112, 255]),
 			CMake => info!("CMake"),
 			Co => info!("Co"),
@@ -486,8 +486,9 @@ impl LanguageInfo {
 			Elm => info!("Elm", color: 0x60b5cc),
 			Elixir => info!("Elixir", color: 0x4e2a8e),
 			Erlang => info!("Erlang", color: 0xa2003e),
-			FSharp => info!("F#", color: 0xb845fc),
+			Fish => info!("Fish", color: 0x75147c),
 			Fortran => info!("Fortran"),
+			FSharp => info!("F#", color: 0xb845fc),
 			Gleam => info!("Gleam", color: 0xffaff3),
 			Gn => info!("gn"),
 			Go => info!("Go", color: 0x00add8),
