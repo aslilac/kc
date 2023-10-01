@@ -2,8 +2,6 @@ use anyhow::anyhow;
 use colored::Colorize;
 use std::collections::HashMap;
 use std::ffi::OsString;
-use std::io;
-use std::io::ErrorKind::*;
 use std::path::Path;
 
 use crate::config::default_ignore_rule;
