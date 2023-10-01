@@ -1,5 +1,3 @@
-#![feature(io_error_more)]
-
 use std::env;
 
 mod color;

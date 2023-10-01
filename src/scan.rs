@@ -19,10 +19,7 @@ pub fn scan(options: Options) -> anyhow::Result<()> {
 	let dir_path = Path::new(dir);
 
 	if !dir_path.is_dir() {
-		return Err(anyhow!(io::Error::new(
-			NotADirectory,
-			format!("{} is not a directory", dir_path.display()),
-		)));
+		return Err(anyhow!("{} is not a directory", dir_path.display()));
 	}
 
 	let mut walk = ignore::WalkBuilder::new(dir_path);
