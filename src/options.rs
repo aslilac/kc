@@ -20,6 +20,7 @@ pub struct Options {
 	pub blame: bool,
 	pub head: Option<usize>,
 	pub excluded: HashSet<Language>,
+	pub only_include: HashSet<Language>,
 	pub total_lines_only: bool,
 }
 
@@ -40,6 +41,7 @@ impl Default for Options {
 			blame: false,
 			head: None,
 			excluded: Default::default(),
+			only_include: Default::default(),
 			total_lines_only: false,
 		}
 	}
@@ -125,6 +127,21 @@ where
 						);
 					}
 				}
+				"-o" | "-only" | "--only" => {
+					let include = args.next();
+					let list = include
+						.as_ref()
+						.expect(&format!("expected a language to follow {} flag", arg))
+						.as_ref()
+						.split(",");
+					for lang in list {
+						options.only_include.insert(
+							Language::from_name(lang)
+								.or_else(|| Language::from_extension(OsStr::new(lang)))
+								.expect(&format!("unrecognized language identifier \"{}\"", lang)),
+						);
+					}
+				}
 				"-l" | "-lines" | "--lines" => {
 					if options.head.is_some() {
 						println!("{} is incompatible with -t/--top", arg);
@@ -138,6 +155,10 @@ where
 					exit(1);
 				}
 			}
+		}
+
+		if !options.only_include.is_empty() && !options.excluded.is_empty() {
+			println!("warning: both --only and --exclude have been set, which doesn't really make sense")
 		}
 
 		options

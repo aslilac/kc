@@ -577,6 +577,7 @@ impl LanguageInfo {
 pub struct LanguageSummary {
 	pub language: Language,
 	pub lines: usize,
+	pub blank_lines: usize,
 	pub files: Vec<PathBuf>,
 }
 
@@ -585,6 +586,7 @@ impl LanguageSummary {
 		Self {
 			language,
 			lines: 0,
+			blank_lines: 0,
 			files: vec![],
 		}
 	}

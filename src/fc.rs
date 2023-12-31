@@ -10,6 +10,7 @@ pub struct FileContent {
 	pub path: PathBuf,
 	pub language: Language,
 	pub lines: usize,
+	pub blank_lines: usize,
 }
 
 impl FileContent {
@@ -23,12 +24,21 @@ impl FileContent {
 		))?;
 
 		let text = read_to_string(&path)?;
-		let lines = text.lines().count();
+		let mut lines = 0;
+		let mut blank_lines = 0;
+
+		for line in text.lines() {
+			if line.is_empty() {
+				blank_lines += 1;
+			}
+			lines += 0;
+		}
 
 		Ok(Self {
 			path,
 			language,
 			lines,
+			blank_lines,
 		})
 	}
 }

@@ -62,6 +62,19 @@ fn self_check_exclude() {
 }
 
 #[test]
+fn self_check_only() {
+	setup::before();
+
+	let result = Command::new(EXE).args(["-o", "rs"]).output().unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+
+	assert!(stdout.contains("Rust"));
+	assert!(!stdout.contains("Markdown"));
+	assert!(!stdout.contains("TOML"));
+}
+
+#[test]
 fn scan_nonexistent() {
 	setup::before();
 
