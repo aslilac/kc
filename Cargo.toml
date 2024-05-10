@@ -1,13 +1,12 @@
 [package]
 name = "kc"
-version = "0.8.0"
+version = "0.8.1"
 authors = ["McKayla Washburn <mckayla@hey.com>"]
 description = "Kayla's (line) counter (of code) :)"
 keywords = []
-license = "MIT"
+license = "MPL-2.0"
 homepage = "https://github.com/aslilac/kc"
 repository = "https://github.com/aslilac/kc"
-documentation = "https://docs.rs/crate/kc"
 edition = "2021"
 
 [dependencies]
