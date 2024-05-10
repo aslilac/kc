@@ -3,6 +3,8 @@ use colored::Colorize;
 use std::collections::HashMap;
 use std::ffi::OsString;
 use std::path::Path;
+use std::sync::mpsc::channel;
+use std::thread::spawn;
 
 use crate::config::default_ignore_rule;
 use crate::fc::FileContent;
@@ -20,6 +22,7 @@ pub fn scan(options: Options) -> anyhow::Result<()> {
 		return Err(anyhow!("{} is not a directory", dir_path.display()));
 	}
 
+	let (tx, rx) = channel();
 	let mut walk = ignore::WalkBuilder::new(dir_path);
 	walk
 		.hidden(!options.include_hidden)
@@ -38,14 +41,25 @@ pub fn scan(options: Options) -> anyhow::Result<()> {
 		.map(|entry| entry.into_path())
 		.filter(|path| path.is_file())
 	{
-		let Ok(content) = FileContent::new(path.to_path_buf()) else {
-			continue;
-		};
+		let tx = tx.clone();
+		spawn(move || {
+			if let Ok(content) = FileContent::new(path.to_path_buf()) {
+				tx.send((path, content)).unwrap();
+			};
+		});
+	}
 
+	// `rx` will close once all handles to `tx` have been dropped. The clones will get dropped
+	// when their threads complete, which leaves this one, which we need to drop before we try to
+	// drain the channel.
+	drop(tx);
+
+	while let Ok((path, content)) = rx.recv() {
 		let summary = summaries
 			.entry(content.language)
 			.or_insert_with(|| LanguageSummary::from(content.language));
 		summary.lines += content.lines;
+		summary.blank_lines += content.blank_lines;
 		summary.files.push(path);
 	}
 

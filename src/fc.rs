@@ -31,7 +31,7 @@ impl FileContent {
 			if line.is_empty() {
 				blank_lines += 1;
 			}
-			lines += 0;
+			lines += 1;
 		}
 
 		Ok(Self {

@@ -591,7 +591,10 @@ impl LanguageSummary {
 		}
 	}
 
-	pub fn to_terminal_display(&self, options: &Options) -> TerminalLanguageSummary {
+	pub fn to_terminal_display<'a, 'b>(
+		&'a self,
+		options: &'b Options,
+	) -> TerminalLanguageSummary<'a, 'b> {
 		TerminalLanguageSummary::new(self, options)
 	}
 }

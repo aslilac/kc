@@ -75,6 +75,37 @@ fn self_check_only() {
 }
 
 #[test]
+fn self_check_lines() {
+	setup::before();
+
+	let result = Command::new(EXE).args(["-l"]).output().unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+
+	assert!(
+		stdout
+			.trim()
+			.parse::<isize>()
+			.expect("program output should only be an integer")
+			> 1000,
+		"output: {}",
+		stdout
+	);
+}
+
+#[test]
+fn self_check_blame() {
+	setup::before();
+
+	let result = Command::new(EXE).args(["-blame"]).output().unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+
+	assert!(stdout.contains("Rust"));
+	assert!(stdout.contains("./src/main.rs"));
+}
+
+#[test]
 fn scan_nonexistent() {
 	setup::before();
 

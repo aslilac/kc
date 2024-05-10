@@ -18,6 +18,7 @@ pub struct Options {
 	pub include_hidden: bool,
 	pub include_ignored: bool,
 	pub blame: bool,
+	pub detailed: bool,
 	pub head: Option<usize>,
 	pub excluded: HashSet<Language>,
 	pub only_include: HashSet<Language>,
@@ -39,6 +40,7 @@ impl Default for Options {
 			include_hidden: false,
 			include_ignored: false,
 			blame: false,
+			detailed: false,
 			head: None,
 			excluded: Default::default(),
 			only_include: Default::default(),
@@ -73,7 +75,7 @@ where
 					println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
 					exit(0);
 				}
-				"-h" | "-help" | "--help" | "-?" => {
+				"-help" | "--help" | "-?" => {
 					println!(
 						"{} {}",
 						env!("CARGO_PKG_NAME").bold().magenta(),
@@ -103,7 +105,10 @@ where
 				"-blame" | "--blame" => {
 					options.blame = true;
 				}
-				"-t" | "-top" | "--top" => {
+				"-d" | "-detailed" | "--detailed" => {
+					options.detailed = true;
+				}
+				"-h" | "-head" | "--head" | "-t" | "-top" | "--top" => {
 					options.head = args
 						.next()
 						.expect(&format!("expected a number to follow {} flag", arg))
@@ -246,6 +251,22 @@ mod tests {
 			["-l"].into_iter().collect::<Options>(),
 			Options {
 				total_lines_only: true,
+				..Default::default()
+			},
+		);
+
+		assert_eq!(
+			["-blame"].into_iter().collect::<Options>(),
+			Options {
+				blame: true,
+				..Default::default()
+			},
+		);
+
+		assert_eq!(
+			["-d"].into_iter().collect::<Options>(),
+			Options {
+				detailed: true,
 				..Default::default()
 			},
 		);
