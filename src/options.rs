@@ -1,10 +1,8 @@
 use colored::Colorize;
 use std::collections::HashSet;
 use std::ffi::OsStr;
+use std::path::PathBuf;
 use std::process::exit;
-use terminal_size::terminal_size;
-use terminal_size::Height;
-use terminal_size::Width;
 
 use crate::langs::Language;
 use crate::reporters::Reporter;
@@ -12,8 +10,7 @@ use crate::reporters::Reporter::*;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Options {
-	pub root_dir: String,
-	pub width: usize,
+	pub root_dir: PathBuf,
 	pub reporter: Reporter,
 	pub include_hidden: bool,
 	pub include_ignored: bool,
@@ -22,20 +19,12 @@ pub struct Options {
 	pub head: Option<usize>,
 	pub excluded: HashSet<Language>,
 	pub only_include: HashSet<Language>,
-	pub total_lines_only: bool,
 }
 
 impl Default for Options {
 	fn default() -> Self {
-		let term_size = terminal_size();
-		let width = match term_size {
-			Some((Width(w), Height(_))) => w.into(),
-			None => 100,
-		};
-
 		Self {
-			root_dir: ".".to_string(),
-			width,
+			root_dir: ".".into(),
 			reporter: Terminal,
 			include_hidden: false,
 			include_ignored: false,
@@ -44,7 +33,6 @@ impl Default for Options {
 			head: None,
 			excluded: Default::default(),
 			only_include: Default::default(),
-			total_lines_only: false,
 		}
 	}
 }
@@ -66,7 +54,7 @@ where
 				(arg.len() >= 2 && arg.starts_with('-')) || (arg.len() >= 3 && arg.starts_with("--"));
 
 			if !is_flag {
-				options.root_dir = arg.to_string();
+				options.root_dir = arg.into();
 				continue;
 			}
 
@@ -147,13 +135,9 @@ where
 						);
 					}
 				}
-				"-l" | "-lines" | "--lines" => {
-					if options.head.is_some() {
-						println!("{} is incompatible with -t/--top", arg);
-						exit(64);
-					}
-
-					options.total_lines_only = true;
+				"-l" | "-lines" | "--lines" | "-total" | "--total" | "-total-lines" | "--total-lines"
+				| "-totalLines" | "--totalLines" => {
+					options.reporter = TotalLines;
 				}
 				_ => {
 					println!("unrecognized option: {}", arg);
@@ -230,7 +214,7 @@ mod tests {
 		assert_eq!(
 			["./test"].into_iter().collect::<Options>(),
 			Options {
-				root_dir: "./test".to_string(),
+				root_dir: "./test".into(),
 				..Default::default()
 			},
 		);
@@ -242,7 +226,7 @@ mod tests {
 			Options {
 				excluded: [TypeScript].into(),
 				head: Some(10),
-				root_dir: "./test".to_string(),
+				root_dir: "./test".into(),
 				..Default::default()
 			},
 		);
@@ -250,7 +234,7 @@ mod tests {
 		assert_eq!(
 			["-l"].into_iter().collect::<Options>(),
 			Options {
-				total_lines_only: true,
+				reporter: TotalLines,
 				..Default::default()
 			},
 		);

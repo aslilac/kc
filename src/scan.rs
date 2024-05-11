@@ -1,22 +1,20 @@
 use anyhow::anyhow;
-use colored::Colorize;
 use std::collections::HashMap;
-use std::ffi::OsString;
-use std::path::Path;
 use std::sync::mpsc::channel;
 use std::thread::spawn;
 
 use crate::config::default_ignore_rule;
 use crate::fc::FileContent;
 use crate::langs::Language;
-use crate::langs::LanguageInfo;
 use crate::langs::LanguageSummary;
 use crate::options::Options;
+use crate::reporters::terminal::TerminalReporter;
+use crate::reporters::total_lines::TotalLinesReporter;
+use crate::reporters::Reporter::*;
 
 pub fn scan(options: Options) -> anyhow::Result<()> {
 	let mut summaries: HashMap<Language, LanguageSummary> = Default::default();
-	let dir = &OsString::from(&options.root_dir);
-	let dir_path = Path::new(dir);
+	let dir_path = &options.root_dir;
 
 	if !dir_path.is_dir() {
 		return Err(anyhow!("{} is not a directory", dir_path.display()));
@@ -63,7 +61,7 @@ pub fn scan(options: Options) -> anyhow::Result<()> {
 		summary.files.push(path);
 	}
 
-	let mut summaries = summaries.iter().collect::<Vec<_>>();
+	let mut summaries = summaries.into_iter().collect::<Vec<_>>();
 	summaries.sort_by(|a, b| b.1.lines.cmp(&a.1.lines));
 
 	if !options.excluded.is_empty() {
@@ -78,66 +76,8 @@ pub fn scan(options: Options) -> anyhow::Result<()> {
 		summaries.truncate(*max);
 	}
 
-	// We wait until here to handle `--lines` because it allows us to still respect
-	// other options like `--exclude` and `--top`.
-	if options.total_lines_only {
-		let total_lines = summaries
-			.iter()
-			.map(|(_, summary)| summary.lines)
-			.sum::<usize>();
-
-		println!("{}", total_lines);
-		return Ok(());
+	match options.reporter {
+		Terminal => TerminalReporter::report(summaries, options),
+		TotalLines => TotalLinesReporter::report(summaries, options),
 	}
-
-	let inner_width = options.width - 2; // we have a padding of 1 character on each side
-
-	println!();
-	for (_, summary) in summaries.iter() {
-		println!(
-			" {:width$}",
-			summary.to_terminal_display(&options),
-			width = inner_width
-		)
-	}
-
-	let total_lines = summaries
-		.iter()
-		.map(|(_, summary)| summary.lines)
-		.reduce(|acc, lines| acc + lines)
-		.ok_or_else(|| anyhow!("no code found in \"{}\"", dir_path.display()))?;
-
-	let mut filled = 0;
-
-	for (_, stat) in summaries.iter() {
-		// If there are 0 total lines, then just say everything is 0%.
-		let percent = (stat.lines * inner_width)
-			.checked_div(total_lines)
-			.unwrap_or(0);
-		if percent == 0 {
-			continue;
-		}
-
-		// Print padding and such on first fill
-		if filled == 0 {
-			println!();
-			print!(" ");
-		}
-		filled += percent;
-
-		let lang = LanguageInfo::from(&stat.language);
-		match lang.color {
-			Some(color) => print!("{}", color.on_color(&*" ".repeat(percent))),
-			None => print!("{}", " ".repeat(percent).on_white()),
-		};
-	}
-
-	// Don't print a bar at all if it'd just all be uncategorized.
-	if filled != 0 {
-		print!("{}", " ".repeat(inner_width - filled).on_white());
-		println!();
-		println!();
-	}
-
-	Ok(())
 }
