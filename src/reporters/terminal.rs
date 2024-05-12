@@ -37,7 +37,7 @@ impl TerminalReporter {
 		let total_lines = summaries.iter().map(|(_, summary)| summary.lines).sum();
 
 		if total_lines == 0 {
-			println!(" no code found in {}", dir_path.display());
+			eprintln!(" no code found in {}", dir_path.display());
 			return Ok(());
 		}
 

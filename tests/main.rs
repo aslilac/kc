@@ -142,7 +142,7 @@ fn scan_empty() {
 		.arg("tests/testdata/empty/")
 		.output()
 		.unwrap();
-	assert!(!result.status.success());
+	assert!(result.status.success());
 	let stderr = String::from_utf8_lossy(&result.stderr);
 
 	assert!(stderr.contains("no code found in"));
@@ -222,12 +222,9 @@ fn scan_hidden() {
 		.arg("tests/testdata/hidden")
 		.output()
 		.unwrap();
-	assert!(!result.status.success());
-	let stdout = String::from_utf8_lossy(&result.stderr);
-	let mut lines = stdout.lines();
-
-	let line = lines.next().unwrap();
-	assert!(line.contains("no code found"));
+	assert!(result.status.success());
+	let stderr = String::from_utf8_lossy(&result.stderr);
+	assert!(stderr.contains("no code found"));
 
 	// Scan *with* hidden files included should report the hidden files
 	let result = Command::new(EXE)
