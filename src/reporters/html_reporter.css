@@ -1,0 +1,46 @@
+:root {
+	font-family: Avenir, Montserrat, Corbel, "URW Gothic", source-sans-pro, sans-serif;
+	font-weight: normal;
+}
+
+body {
+	margin: 0 auto;
+	padding: 48px 24px 24px;
+	max-width: 968px;
+}
+
+.bar {
+	display: flex;
+	gap: 2px;
+	border-radius: 10px;
+	height: 10px;
+	overflow: hidden;
+	margin-bottom: 32px;
+}
+
+.bar > * {
+	flex-basis: 0;
+}
+
+table {
+	width: 100%;
+}
+
+th {
+	font-size: 1.2em;
+}
+
+th:first-of-type,
+td:first-of-type {
+	text-align: left;
+}
+
+th,
+td {
+	text-align: right;
+}
+
+td {
+	border-bottom: 1px dotted black;
+	padding: 0.2em 0;
+}

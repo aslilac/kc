@@ -4,10 +4,14 @@ usage: kc [options] [directory]
       include hidden files and directories
   -A
       include ignored files and directories
+  --blame
+      list all of the files for each language
   -t, --top [number]
       only show the top few languages
   -x, --exclude [name | extension]
       exclude a language based on name or file extension
+  -o, --only [name | extension]
+      only include the languages specified
   -l, --lines
       only report the total number of lines in all files
   --reporter [name]

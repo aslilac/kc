@@ -1,10 +1,12 @@
 use std::str::FromStr;
 
+pub mod html;
 pub mod terminal;
 pub mod total_lines;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Reporter {
+	Html,
 	Terminal,
 	TotalLines,
 }
@@ -14,6 +16,7 @@ impl FromStr for Reporter {
 
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
 		match s.to_ascii_lowercase().as_ref() {
+			"html" => Ok(Self::Html),
 			"terminal" => Ok(Self::Terminal),
 			"total" | "total_lines" | "total-lines" | "totalLines" => Ok(Self::TotalLines),
 			_ => Err(()),
@@ -23,6 +26,6 @@ impl FromStr for Reporter {
 
 impl Reporter {
 	pub fn help() -> &'static str {
-		"\"terminal\", \"total-lines\""
+		"\"html\", \"terminal\", \"total-lines\""
 	}
 }

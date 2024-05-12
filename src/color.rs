@@ -8,6 +8,10 @@ pub struct Color {
 }
 
 impl Color {
+	pub fn hex(&self) -> String {
+		format!("#{:02x}{:02x}{:02x}", self.r, self.g, self.b)
+	}
+
 	pub fn color<T>(&self, t: T) -> String
 	where
 		T: Colorize,
@@ -58,5 +62,11 @@ mod tests {
 				b: 0xef
 			}
 		);
+	}
+
+	#[test]
+	fn hex() {
+		assert_eq!(Color::from([0, 0, 0]).hex(), "#000000");
+		assert_eq!(Color::from(0xbeeeef).hex(), "#beeeef");
 	}
 }

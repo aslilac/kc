@@ -126,16 +126,7 @@ impl Language {
 impl Display for Language {
 	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
 		let info = LanguageInfo::from(self);
-
-		write!(
-			f,
-			"{}  {}",
-			info
-				.color
-				.map(|color| color.color("●"))
-				.unwrap_or_else(|| "●".to_string()),
-			&info.name
-		)
+		write!(f, "{}", &info.name)
 	}
 }
 

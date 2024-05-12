@@ -72,7 +72,7 @@ where
 					println!("{}", include_str!("./help.txt"));
 					exit(0);
 				}
-				"-reporter" | "--reporter" => {
+				"-O" | "-reporter" | "--reporter" => {
 					options.reporter = args
 						.next()
 						.expect(&format!("expected a reporter to follow {} flag", arg))
@@ -105,7 +105,7 @@ where
 						.expect(&format!("unable to parse \"{}\" as a number", arg))
 						.into();
 				}
-				"-x" | "-exclude" | "--exclude" => {
+				"-x" | "-exclude" | "--exclude" | "-ignore" | "--ignore" => {
 					let exclusions = args.next();
 					let list = exclusions
 						.as_ref()
@@ -140,14 +140,14 @@ where
 					options.reporter = TotalLines;
 				}
 				_ => {
-					println!("unrecognized option: {}", arg);
+					eprintln!("unrecognized option: {}", arg);
 					exit(1);
 				}
 			}
 		}
 
 		if !options.only_include.is_empty() && !options.excluded.is_empty() {
-			println!("warning: both --only and --exclude have been set, which doesn't really make sense")
+			eprintln!("warning: both --only and --exclude have been set, which doesn't really make sense")
 		}
 
 		options
@@ -251,6 +251,14 @@ mod tests {
 			["-d"].into_iter().collect::<Options>(),
 			Options {
 				detailed: true,
+				..Default::default()
+			},
+		);
+
+		assert_eq!(
+			["-O", "html"].into_iter().collect::<Options>(),
+			Options {
+				reporter: Reporter::Html,
 				..Default::default()
 			},
 		);

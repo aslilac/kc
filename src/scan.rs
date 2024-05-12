@@ -8,6 +8,7 @@ use crate::fc::FileContent;
 use crate::langs::Language;
 use crate::langs::LanguageSummary;
 use crate::options::Options;
+use crate::reporters::html::HtmlReporter;
 use crate::reporters::terminal::TerminalReporter;
 use crate::reporters::total_lines::TotalLinesReporter;
 use crate::reporters::Reporter::*;
@@ -77,6 +78,7 @@ pub fn scan(options: Options) -> anyhow::Result<()> {
 	}
 
 	match options.reporter {
+		Html => HtmlReporter::report(summaries, options),
 		Terminal => TerminalReporter::report(summaries, options),
 		TotalLines => TotalLinesReporter::report(summaries, options),
 	}

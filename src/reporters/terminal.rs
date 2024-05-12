@@ -34,11 +34,12 @@ impl TerminalReporter {
 			)
 		}
 
-		let total_lines = summaries
-			.iter()
-			.map(|(_, summary)| summary.lines)
-			.reduce(|acc, lines| acc + lines)
-			.ok_or_else(|| anyhow!("no code found in \"{}\"", dir_path.display()))?;
+		let total_lines = summaries.iter().map(|(_, summary)| summary.lines).sum();
+
+		if total_lines == 0 {
+			println!(" no code found in {}", dir_path.display());
+			return Ok(());
+		}
 
 		let mut filled = 0;
 
@@ -102,7 +103,19 @@ impl<'a, 'b> Display for TerminalLanguageSummary<'a, 'b> {
 		let inlay = format!("{:.>width$}", "", width = width)
 			.bright_black()
 			.to_string();
-		write!(f, "{} {} {}", summary.language, inlay, right_side)?;
+
+		let info = LanguageInfo::from(&summary.language);
+		write!(
+			f,
+			"{}  {} {} {}",
+			info
+				.color
+				.map(|color| color.color("●"))
+				.unwrap_or_else(|| "●".to_string()),
+			info.name,
+			inlay,
+			right_side
+		)?;
 
 		if options.blame {
 			let mut files = summary.files.iter().peekable();
