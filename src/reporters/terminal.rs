@@ -1,4 +1,3 @@
-use anyhow::anyhow;
 use colored::Colorize;
 use std::fmt;
 use std::fmt::Display;
