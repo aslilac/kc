@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::Path;
 use std::process::Command;
 
@@ -103,6 +104,20 @@ fn self_check_blame() {
 
 	assert!(stdout.contains("Rust"));
 	assert!(stdout.contains("./src/main.rs"));
+}
+
+#[test]
+fn self_check_html() {
+	setup::before();
+
+	let result = Command::new(EXE)
+		.args(["-reporter", "html"])
+		.output()
+		.unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+
+	assert_eq!(include_str!("./testdata/kc.html"), stdout);
 }
 
 #[test]
