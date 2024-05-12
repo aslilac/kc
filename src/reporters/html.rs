@@ -21,7 +21,6 @@ impl HtmlReporter {
 		);
 		print!("<body>\n\n");
 
-		// The bar
 		let total_lines = summaries
 			.iter()
 			.map(|(_, summary)| summary.lines)
@@ -65,18 +64,19 @@ impl HtmlReporter {
 			<colgroup><col /><col width=\"15%\" /><col width=\"15%\" /></colgroup>\n\
 			<th>Language</th><th>Lines</th><th>Blank</th>\n"
 		);
-
-		for (_, stat) in summaries.iter() {
-			let lang = LanguageInfo::from(&stat.language);
-			let color = lang
-				.color
-				.as_ref()
-				.map(Color::hex)
-				.unwrap_or("gray".to_string());
-			println!(
-				"\t<tr><td><span style=\"color: {}\">●</span>&nbsp;{}</td><td>{}</td><td>{}</td></tr>",
-				color, stat.language, stat.lines, stat.blank_lines
-			);
+		{
+			for (_, stat) in summaries.iter() {
+				let lang = LanguageInfo::from(&stat.language);
+				let color = lang
+					.color
+					.as_ref()
+					.map(Color::hex)
+					.unwrap_or("gray".to_string());
+				println!(
+					"\t<tr><td><span style=\"color: {}\">●</span>&nbsp;{}</td><td>{}</td><td>{}</td></tr>",
+					color, stat.language, stat.lines, stat.blank_lines
+				);
+			}
 		}
 		print!("</table>\n\n");
 
