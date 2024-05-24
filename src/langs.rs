@@ -10,6 +10,7 @@ use crate::reporters::terminal::TerminalLanguageSummary;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Language {
+	Ada,
 	Assembly,
 	Astro,
 	Bash,
@@ -139,6 +140,7 @@ impl Language {
 		use Language::*;
 
 		match name.as_ref().to_ascii_lowercase().as_ref() {
+			"ada" => Some(Ada),
 			"assembly" => Some(Assembly),
 			"astro" => Some(Astro),
 			"bash" => Some(Bash),
@@ -279,6 +281,8 @@ impl Language {
 		use Language::*;
 
 		match ext.as_ref().to_str()?.to_ascii_lowercase().as_ref() {
+			"adb" => Some(Ada),
+			"ads" => Some(Ada),
 			"asm" => Some(Assembly),
 			"astro" => Some(Astro),
 			"b" => Some(Brainfuck),
@@ -455,6 +459,7 @@ impl LanguageInfo {
 		use Language::*;
 
 		match lang {
+			Ada => info!("Ada", color: 0x02f88c),
 			Assembly => info!("Assembly"),
 			Astro => info!("Astro", color: 0xa78bfa),
 			Bash => info!("Bash", color: [50, 50, 50]),
