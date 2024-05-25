@@ -52,10 +52,12 @@ impl HtmlReporter {
 				);
 			}
 
-			println!(
-				"\t<div aria-hidden style=\"background-color: gray; flex-grow: {}\"></div>",
-				remaining_lines,
-			);
+			if remaining_lines > 0 {
+				println!(
+					"\t<div aria-hidden title=\"Other languages\" style=\"background-color: gray; flex-grow: {}\"></div>",
+					remaining_lines,
+				);
+			}
 		}
 		print!("</div>\n\n");
 
