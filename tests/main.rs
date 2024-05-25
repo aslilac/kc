@@ -1,4 +1,3 @@
-use std::fs;
 use std::path::Path;
 use std::process::Command;
 
@@ -107,20 +106,6 @@ fn self_check_blame() {
 }
 
 #[test]
-fn self_check_html() {
-	setup::before();
-
-	let result = Command::new(EXE)
-		.args(["-reporter", "html"])
-		.output()
-		.unwrap();
-	assert!(result.status.success());
-	let stdout = String::from_utf8_lossy(&result.stdout);
-
-	assert_eq!(include_str!("./testdata/kc.html"), stdout);
-}
-
-#[test]
 fn scan_nonexistent() {
 	setup::before();
 
@@ -226,6 +211,21 @@ fn scan_mixed() {
 	assert!(result.status.success());
 	let stdout = String::from_utf8_lossy(&result.stdout);
 	assert_eq!(stdout, "6\n");
+}
+
+// Update snapshot by running `cargo run -- -reporter html tests/testdata/mixed/ > tests/testdata/mixed.html`
+#[test]
+fn scan_mixed_with_html_reporter() {
+	setup::before();
+
+	let result = Command::new(EXE)
+		.args(["-reporter", "html", "tests/testdata/mixed/"])
+		.output()
+		.unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+
+	assert_eq!(include_str!("./testdata/mixed.html"), stdout);
 }
 
 #[test]

@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+<title>kc — tests/testdata/mixed/</title>
+<style>
+:root {
+	font-family: Avenir, Montserrat, Corbel, "URW Gothic", source-sans-pro, sans-serif;
+	font-weight: normal;
+}
+
+body {
+	margin: 0 auto;
+	padding: 48px 24px;
+	max-width: 968px;
+}
+
+.bar {
+	display: flex;
+	gap: 2px;
+	border-radius: 10px;
+	height: 10px;
+	overflow: hidden;
+	margin-bottom: 32px;
+}
+
+.bar > * {
+	flex-basis: 0;
+}
+
+table {
+	width: 100%;
+}
+
+th {
+	font-size: 1.2em;
+}
+
+th:first-of-type,
+td:first-of-type {
+	text-align: left;
+}
+
+th,
+td {
+	text-align: right;
+}
+
+td {
+	border-bottom: 1px dotted black;
+	padding: 0.2em 0;
+}
+</style>
+</head>
+<body>
+
+<div aria-hidden class="bar">
+	<div aria-hidden title="Rust" style="background-color: #a72145; flex-grow: 6"></div>
+	<div aria-hidden title="Gleam" style="background-color: #ffaff3; flex-grow: 5"></div>
+	<div aria-hidden title="Make" style="background-color: gray; flex-grow: 4"></div>
+	<div aria-hidden title="TypeScript" style="background-color: #3178c6; flex-grow: 2"></div>
+</div>
+
+<table>
+<colgroup><col /><col width="15%" /><col width="15%" /></colgroup>
+<th>Language</th><th>Lines</th><th>Blank</th>
+	<tr><td><span style="color: #a72145">●</span>&nbsp;Rust</td><td>6</td><td>1</td></tr>
+	<tr><td><span style="color: #ffaff3">●</span>&nbsp;Gleam</td><td>5</td><td>1</td></tr>
+	<tr><td><span style="color: gray">●</span>&nbsp;Make</td><td>4</td><td>1</td></tr>
+	<tr><td><span style="color: #3178c6">●</span>&nbsp;TypeScript</td><td>2</td><td>0</td></tr>
+</table>
+
+</body>
+</html>
