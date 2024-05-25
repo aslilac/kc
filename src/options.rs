@@ -58,7 +58,7 @@ where
 				continue;
 			}
 
-			match arg.as_ref() {
+			match arg {
 				"-v" | "-V" | "-version" | "--version" => {
 					println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
 					exit(0);
@@ -111,7 +111,7 @@ where
 						.as_ref()
 						.expect(&format!("expected a language to follow {} flag", arg))
 						.as_ref()
-						.split(",");
+						.split(',');
 					for lang in list {
 						options.excluded.insert(
 							Language::from_name(lang)
@@ -126,7 +126,7 @@ where
 						.as_ref()
 						.expect(&format!("expected a language to follow {} flag", arg))
 						.as_ref()
-						.split(",");
+						.split(',');
 					for lang in list {
 						options.only_include.insert(
 							Language::from_name(lang)
