@@ -6,6 +6,8 @@ usage: kc [options] [directory]
       include ignored files and directories
   --blame
       list all of the files for each language
+  -d
+      include more details such as blank lines
   -t, --top [number]
       only show the top few languages
   -x, --exclude [name | extension]
