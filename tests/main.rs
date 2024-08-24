@@ -261,3 +261,63 @@ fn scan_hidden() {
 	assert!(line.contains("TOML") || line.contains("JSON"));
 	assert!(line.contains("0"));
 }
+
+#[test]
+fn respects_ignore_file() {
+	setup::before();
+
+	let result = Command::new(EXE)
+		.arg("tests/testdata/ignore/")
+		.output()
+		.unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+	assert!(stdout.contains("Kotlin"));
+	assert!(!stdout.contains("Go"));
+	assert!(!stdout.contains("Rust"));
+}
+
+#[test]
+fn ignores_ignore_file() {
+	setup::before();
+
+	let result = Command::new(EXE)
+		.args(["tests/testdata/ignore/", "-A"])
+		.output()
+		.unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+	assert!(stdout.contains("Kotlin"));
+	assert!(stdout.contains("Go"));
+	assert!(stdout.contains("Rust"));
+}
+
+#[test]
+fn respects_gitignore_file() {
+	setup::before();
+
+	let result = Command::new(EXE)
+		.arg("tests/testdata/gitignore/")
+		.output()
+		.unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+	assert!(stdout.contains("Kotlin"));
+	assert!(!stdout.contains("Go"));
+	assert!(!stdout.contains("Rust"));
+}
+
+#[test]
+fn ignores_gitignore_file() {
+	setup::before();
+
+	let result = Command::new(EXE)
+		.args(["tests/testdata/gitignore/", "-A"])
+		.output()
+		.unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+	assert!(stdout.contains("Kotlin"));
+	assert!(stdout.contains("Go"));
+	assert!(stdout.contains("Rust"));
+}
