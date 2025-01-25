@@ -508,14 +508,12 @@ impl LanguageInfo {
 			Idris => info!("Idris", color: 0xc74350),
 			Io => info!("Io", color: 0xa9188d),
 			Jai => info!("Jai"),
-			Jakt => info!("Jakt", color: [255, 0, 0]), // TODO: bad
 			// Java => info!("Java", color: [205, 112, 42]),
 			Java => info!("Java", color: [205, 55, 47]),
 			JavaScript => info!("JavaScript", color: 0xf1e05a),
 			Json => info!("JSON"),
 			Julia => info!("Julia", color: 0xa270ba),
 			Koka => info!("Koka"),
-			// Kotlin => info!("Kotlin", color: 0x7f52ff),
 			Kotlin => info!("Kotlin", color: 0xa97bff),
 			Llvm => info!("LLVM IR"),
 			Lua => info!("Lua", color: 0x000077),
@@ -525,7 +523,6 @@ impl LanguageInfo {
 			Nim => info!("Nim", color: 0xffc200),
 			Nix => info!("Nix", color: 0x5773b8),
 			NuShell => info!("NuShell", color: 0x3aa675),
-			Oak => info!("Oak"),
 			ObjectiveC => info!("Objective-C"),
 			ObjectiveCxx => info!("Objective-C++"),
 			OCaml => info!("OCaml", color: 0xee6a1a),
@@ -572,7 +569,7 @@ impl LanguageInfo {
 			Yall => info!("Y'all", color: 0xff8f77),
 			Yaml => info!("YAML"),
 			YueScript => info!("YueScript", color: 0xb7ae8f),
-			Zig => info!("Zig", color: [235, 168, 66]),
+			Zig => info!("Zig", color: 0xeba842),
 		}
 	}
 }
