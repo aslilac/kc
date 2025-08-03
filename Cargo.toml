@@ -10,7 +10,7 @@ repository = "https://github.com/aslilac/kc"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.72"
-colored = "2.0.0"
-ignore = "0.4.20"
-terminal_size = "0.2.6"
+anyhow = "1.0.98"
+colored = "3.0.0"
+ignore = "0.4.23"
+terminal_size = "0.4.2"
