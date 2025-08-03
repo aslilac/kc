@@ -335,12 +335,12 @@ fn ignores_gitignore_file() {
 	setup::before();
 
 	let result = Command::new(EXE)
-		.args(["tests/testdata/gitignore/", "-A"])
+		.args(["tests/testdata/gitignore/"])
 		.output()
 		.unwrap();
 	assert!(result.status.success());
 	let stdout = String::from_utf8_lossy(&result.stdout);
 	assert!(stdout.contains("Kotlin"));
-	assert!(stdout.contains("Go"));
-	assert!(stdout.contains("Rust"));
+	assert!(!stdout.contains("Go"));
+	assert!(!stdout.contains("Rust"));
 }
