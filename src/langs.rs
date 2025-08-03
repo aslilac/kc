@@ -5,8 +5,6 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use crate::color::Color;
-use crate::options::Options;
-use crate::reporters::terminal::TerminalLanguageSummary;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum Language {
@@ -590,13 +588,6 @@ impl LanguageSummary {
 			blank_lines: 0,
 			files: vec![],
 		}
-	}
-
-	pub fn to_terminal_display<'a, 'b>(
-		&'a self,
-		options: &'b Options,
-	) -> TerminalLanguageSummary<'a, 'b> {
-		TerminalLanguageSummary::new(self, options)
 	}
 }
 

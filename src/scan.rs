@@ -1,5 +1,7 @@
 use anyhow::anyhow;
 use std::collections::HashMap;
+use std::io;
+use std::io::Write;
 use std::sync::mpsc::channel;
 use std::thread::spawn;
 
@@ -9,6 +11,7 @@ use crate::langs::Language;
 use crate::langs::LanguageSummary;
 use crate::options::Options;
 use crate::reporters::html::HtmlReporter;
+use crate::reporters::markdown::MarkdownReporter;
 use crate::reporters::terminal::TerminalReporter;
 use crate::reporters::total_lines::TotalLinesReporter;
 use crate::reporters::Reporter::*;
@@ -62,15 +65,15 @@ pub fn scan(options: Options) -> anyhow::Result<()> {
 		summary.files.push(path);
 	}
 
-	let mut summaries = summaries.into_iter().collect::<Vec<_>>();
-	summaries.sort_by(|a, b| b.1.lines.cmp(&a.1.lines));
+	let mut summaries = summaries.into_values().collect::<Vec<_>>();
+	summaries.sort_by(|a, b| b.lines.cmp(&a.lines));
 
 	if !options.excluded.is_empty() {
-		summaries.retain(|(lang, _)| !options.excluded.contains(lang))
+		summaries.retain(|it| !options.excluded.contains(&it.language))
 	}
 
 	if !options.only_include.is_empty() {
-		summaries.retain(|(lang, _)| options.only_include.contains(lang))
+		summaries.retain(|it| options.only_include.contains(&it.language))
 	}
 
 	if let Some(max) = &options.head {
@@ -78,8 +81,15 @@ pub fn scan(options: Options) -> anyhow::Result<()> {
 	}
 
 	match options.reporter {
-		Html => HtmlReporter::report(summaries, options),
-		Terminal => TerminalReporter::report(summaries, options),
-		TotalLines => TotalLinesReporter::report(summaries, options),
-	}
+		Html => HtmlReporter::report(summaries, options)?,
+		Markdown => write!(
+			io::stdout(),
+			"{}",
+			MarkdownReporter::new(summaries, options)
+		)?,
+		Terminal => TerminalReporter::report(summaries, options)?,
+		TotalLines => TotalLinesReporter::report(summaries, options)?,
+	};
+
+	Ok(())
 }

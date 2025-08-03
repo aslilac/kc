@@ -7,7 +7,6 @@ use crate::langs::Language;
 
 #[derive(Clone, Debug)]
 pub struct FileContent {
-	pub path: PathBuf,
 	pub language: Language,
 	pub lines: usize,
 	pub blank_lines: usize,
@@ -35,7 +34,6 @@ impl FileContent {
 		}
 
 		Ok(Self {
-			path,
 			language,
 			lines,
 			blank_lines,

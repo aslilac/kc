@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use colored::Colorize;
 use std::collections::HashSet;
 use std::ffi::OsStr;
@@ -37,14 +38,8 @@ impl Default for Options {
 	}
 }
 
-impl<S> FromIterator<S> for Options
-where
-	S: AsRef<str>,
-{
-	fn from_iter<I>(args: I) -> Self
-	where
-		I: IntoIterator<Item = S>,
-	{
+impl Options {
+	pub fn from(args: impl IntoIterator<Item = impl AsRef<str>>) -> anyhow::Result<Self> {
 		let mut options = Options::default();
 		let mut args = args.into_iter();
 
@@ -75,10 +70,10 @@ where
 				"-O" | "-reporter" | "--reporter" => {
 					options.reporter = args
 						.next()
-						.expect(&format!("expected a reporter to follow {} flag", arg))
+						.ok_or_else(|| anyhow!("expected a reporter to follow {} flag", arg))?
 						.as_ref()
 						.parse::<Reporter>()
-						.expect(&format!("{} flag expects one of {}", arg, Reporter::help()));
+						.map_err(|_| anyhow!("{} flag expects one of {}", arg, Reporter::help()))?;
 				}
 				"-a" => {
 					options.include_hidden = true;
@@ -99,24 +94,24 @@ where
 				"-h" | "-head" | "--head" | "-t" | "-top" | "--top" => {
 					options.head = args
 						.next()
-						.expect(&format!("expected a number to follow {} flag", arg))
+						.ok_or_else(|| anyhow!("expected a number to follow {} flag", arg))?
 						.as_ref()
 						.parse::<usize>()
-						.expect(&format!("unable to parse \"{}\" as a number", arg))
+						.map_err(|_| anyhow!("unable to parse \"{}\" as a number", arg))?
 						.into();
 				}
 				"-x" | "-exclude" | "--exclude" | "-ignore" | "--ignore" => {
 					let exclusions = args.next();
 					let list = exclusions
 						.as_ref()
-						.expect(&format!("expected a language to follow {} flag", arg))
+						.ok_or_else(|| anyhow!("expected a language to follow {} flag", arg))?
 						.as_ref()
 						.split(',');
 					for lang in list {
 						options.excluded.insert(
 							Language::from_name(lang)
 								.or_else(|| Language::from_extension(OsStr::new(lang)))
-								.expect(&format!("unrecognized language identifier \"{}\"", lang)),
+								.ok_or_else(|| anyhow!("unrecognized language identifier \"{}\"", lang))?,
 						);
 					}
 				}
@@ -124,14 +119,14 @@ where
 					let include = args.next();
 					let list = include
 						.as_ref()
-						.expect(&format!("expected a language to follow {} flag", arg))
+						.ok_or_else(|| anyhow!("expected a language to follow {} flag", arg))?
 						.as_ref()
 						.split(',');
 					for lang in list {
 						options.only_include.insert(
 							Language::from_name(lang)
 								.or_else(|| Language::from_extension(OsStr::new(lang)))
-								.expect(&format!("unrecognized language identifier \"{}\"", lang)),
+								.ok_or_else(|| anyhow!("unrecognized language identifier \"{}\"", lang))?,
 						);
 					}
 				}
@@ -150,7 +145,7 @@ where
 			eprintln!("warning: both --only and --exclude have been set, which doesn't really make sense")
 		}
 
-		options
+		Ok(options)
 	}
 }
 
@@ -160,9 +155,9 @@ mod tests {
 	use Language::*;
 
 	#[test]
-	fn from_args() {
+	fn from_args() -> anyhow::Result<()> {
 		assert_eq!(
-			["-h", "10"].into_iter().collect::<Options>(),
+			Options::from(["-h", "10"])?,
 			Options {
 				head: Some(10),
 				..Default::default()
@@ -170,7 +165,7 @@ mod tests {
 		);
 
 		assert_eq!(
-			["--top", "10"].into_iter().collect::<Options>(),
+			Options::from(["--top", "10"])?,
 			Options {
 				head: Some(10),
 				..Default::default()
@@ -178,7 +173,7 @@ mod tests {
 		);
 
 		assert_eq!(
-			["-x", "ts"].into_iter().collect::<Options>(),
+			Options::from(["-x", "ts"])?,
 			Options {
 				excluded: [TypeScript].into(),
 				..Default::default()
@@ -186,7 +181,7 @@ mod tests {
 		);
 
 		assert_eq!(
-			["--exclude", "ts"].into_iter().collect::<Options>(),
+			Options::from(["--exclude", "ts"])?,
 			Options {
 				excluded: [TypeScript].into(),
 				..Default::default()
@@ -194,7 +189,7 @@ mod tests {
 		);
 
 		assert_eq!(
-			["-x", "BQN,TypeScript"].into_iter().collect::<Options>(),
+			Options::from(["-x", "BQN,TypeScript"])?,
 			Options {
 				excluded: [Bqn, TypeScript].into(),
 				..Default::default()
@@ -202,9 +197,7 @@ mod tests {
 		);
 
 		assert_eq!(
-			["-x", "gleam", "-x", "rs,ts"]
-				.into_iter()
-				.collect::<Options>(),
+			Options::from(["-x", "gleam", "-x", "rs,ts"])?,
 			Options {
 				excluded: [Gleam, Rust, TypeScript].into(),
 				..Default::default()
@@ -212,7 +205,7 @@ mod tests {
 		);
 
 		assert_eq!(
-			["./test"].into_iter().collect::<Options>(),
+			Options::from(["./test"])?,
 			Options {
 				root_dir: "./test".into(),
 				..Default::default()
@@ -220,9 +213,7 @@ mod tests {
 		);
 
 		assert_eq!(
-			["-h", "10", "./test", "-x", "ts"]
-				.into_iter()
-				.collect::<Options>(),
+			Options::from(["-h", "10", "./test", "-x", "ts"])?,
 			Options {
 				excluded: [TypeScript].into(),
 				head: Some(10),
@@ -232,7 +223,7 @@ mod tests {
 		);
 
 		assert_eq!(
-			["-l"].into_iter().collect::<Options>(),
+			Options::from(["-l"])?,
 			Options {
 				reporter: TotalLines,
 				..Default::default()
@@ -240,7 +231,7 @@ mod tests {
 		);
 
 		assert_eq!(
-			["-blame"].into_iter().collect::<Options>(),
+			Options::from(["-blame"])?,
 			Options {
 				blame: true,
 				..Default::default()
@@ -248,7 +239,7 @@ mod tests {
 		);
 
 		assert_eq!(
-			["-d"].into_iter().collect::<Options>(),
+			Options::from(["-d"])?,
 			Options {
 				detailed: true,
 				..Default::default()
@@ -256,11 +247,13 @@ mod tests {
 		);
 
 		assert_eq!(
-			["-O", "html"].into_iter().collect::<Options>(),
+			Options::from(["-O", "html"])?,
 			Options {
 				reporter: Reporter::Html,
 				..Default::default()
 			},
 		);
+
+		Ok(())
 	}
 }

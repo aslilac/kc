@@ -4,7 +4,6 @@ use std::fmt::Display;
 use terminal_size::terminal_size;
 use terminal_size::Width;
 
-use crate::langs::Language;
 use crate::langs::LanguageInfo;
 use crate::langs::LanguageSummary;
 use crate::options::Options;
@@ -12,10 +11,7 @@ use crate::options::Options;
 pub struct TerminalReporter;
 
 impl TerminalReporter {
-	pub fn report(
-		summaries: Vec<(Language, LanguageSummary)>,
-		options: Options,
-	) -> anyhow::Result<()> {
+	pub fn report(summaries: Vec<LanguageSummary>, options: Options) -> anyhow::Result<()> {
 		let dir_path = &options.root_dir;
 		let term_size = terminal_size();
 		let width = match term_size {
@@ -25,15 +21,15 @@ impl TerminalReporter {
 		let inner_width = width - 2; // we have a padding of 1 character on each side
 
 		println!();
-		for (_, summary) in summaries.iter() {
+		for summary in summaries.iter() {
 			println!(
 				" {:width$}",
-				summary.to_terminal_display(&options),
+				TerminalLanguageSummary::new(summary, &options),
 				width = inner_width
 			)
 		}
 
-		let total_lines = summaries.iter().map(|(_, summary)| summary.lines).sum();
+		let total_lines = summaries.iter().map(|summary| summary.lines).sum();
 
 		if total_lines == 0 {
 			eprintln!(" no code found in {}", dir_path.display());
@@ -42,9 +38,9 @@ impl TerminalReporter {
 
 		let mut filled = 0;
 
-		for (_, stat) in summaries.iter() {
+		for summary in summaries.iter() {
 			// If there are 0 total lines, then just say everything is 0%.
-			let percent = (stat.lines * inner_width)
+			let percent = (summary.lines * inner_width)
 				.checked_div(total_lines)
 				.unwrap_or(0);
 			if percent == 0 {
@@ -58,7 +54,7 @@ impl TerminalReporter {
 			}
 			filled += percent;
 
-			let lang = LanguageInfo::from(&stat.language);
+			let lang = LanguageInfo::from(&summary.language);
 			match lang.color {
 				Some(color) => print!("{}", color.on_color(&*" ".repeat(percent))),
 				None => print!("{}", " ".repeat(percent).on_white()),

@@ -229,6 +229,29 @@ fn scan_mixed_with_html_reporter() {
 }
 
 #[test]
+fn scan_mixed_total_lines() {
+	setup::before();
+
+	let result = Command::new(EXE)
+		.args(["-lines", "tests/testdata/mixed/"])
+		.output()
+		.unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+
+	assert_eq!("17\n", stdout);
+
+	let result = Command::new(EXE)
+		.args(["-lines", "-d", "tests/testdata/mixed/"])
+		.output()
+		.unwrap();
+	assert!(result.status.success());
+	let stdout = String::from_utf8_lossy(&result.stdout);
+
+	assert_eq!("17 (3 blank lines)\n", stdout);
+}
+
+#[test]
 fn scan_hidden() {
 	setup::before();
 

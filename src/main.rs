@@ -9,6 +9,6 @@ mod reporters;
 mod scan;
 
 fn main() -> anyhow::Result<()> {
-	let options = env::args().skip(1).collect();
+	let options = options::Options::from(env::args().skip(1))?;
 	scan::scan(options)
 }

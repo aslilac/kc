@@ -1,5 +1,4 @@
 use crate::color::Color;
-use crate::langs::Language;
 use crate::langs::LanguageInfo;
 use crate::langs::LanguageSummary;
 use crate::options::Options;
@@ -9,28 +8,22 @@ pub struct HtmlReporter;
 const ROW_STYLES: &str = include_str!("./html_reporter.css");
 
 impl HtmlReporter {
-	pub fn report(
-		summaries: Vec<(Language, LanguageSummary)>,
-		options: Options,
-	) -> anyhow::Result<()> {
-		print!("<!doctype html>\n");
+	pub fn report(summaries: Vec<LanguageSummary>, options: Options) -> anyhow::Result<()> {
+		println!("<!doctype html>");
 		print!(
-			"<html>\n<head>\n<title>kc — {}</title>\n<style>\n{}</style>\n</head>\n",
+			"<html>\n<head>\n<title>{} — kc</title>\n<style>\n{}</style>\n</head>\n",
 			options.root_dir.display(),
 			ROW_STYLES
 		);
 		print!("<body>\n\n");
 
-		let total_lines = summaries
-			.iter()
-			.map(|(_, summary)| summary.lines)
-			.sum::<usize>();
+		let total_lines = summaries.iter().map(|it| it.lines).sum::<usize>();
 		let mut remaining_lines = total_lines;
 		let total_lines = total_lines as f32;
 
 		println!("<div aria-hidden class=\"bar\">");
 		{
-			for (_, stat) in summaries.iter() {
+			for stat in summaries.iter() {
 				// If there are 0 total lines, then just say everything is 0%.
 				let percent = stat.lines as f32 / total_lines;
 				if percent.is_nan() || percent < 0.02 {
@@ -67,7 +60,7 @@ impl HtmlReporter {
 			<th>Language</th><th>Lines</th><th>Blank</th>\n"
 		);
 		{
-			for (_, stat) in summaries.iter() {
+			for stat in summaries.iter() {
 				let lang = LanguageInfo::from(&stat.language);
 				let color = lang
 					.color
