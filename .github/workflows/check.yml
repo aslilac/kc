@@ -11,18 +11,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        name: Checkout
 
       - uses: dtolnay/rust-toolchain@stable
+        name: Configure Rust
         with:
           components: clippy, rustfmt
 
       - run: cargo fmt -- --check
+        name: Format
 
       - run: cargo clippy
+        name: Lint
 
       - run: cargo test
+        name: Test

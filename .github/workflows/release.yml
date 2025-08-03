@@ -19,7 +19,7 @@ jobs:
             echo "tag ${{ github.ref_name }} does not match version $version in Cargo.toml"
             exit 1
           fi
-        name: Version
+        name: Verify version
 
       - uses: actions/cache@v4
         name: Configure cache
@@ -27,8 +27,8 @@ jobs:
           path: |
             ~/.cargo/
             ./build/
-          key: publish-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: publish-cargo-
+          key: ${{ github.workflow }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ github.workflow }}-cargo-
 
       - uses: dtolnay/rust-toolchain@stable
         name: Configure Rust
