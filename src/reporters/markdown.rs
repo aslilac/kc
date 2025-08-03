@@ -49,7 +49,7 @@ impl Display for MarkdownReporter {
 		)?;
 		let language_dashes = "-".repeat(longest_language_name);
 		let lines_dashes = "-".repeat(longest_line_count);
-		writeln!(f, "|-{}-|-{}-|", language_dashes, lines_dashes)?;
+		writeln!(f, "|-{language_dashes}-|-{lines_dashes}-|")?;
 		for summary in summaries {
 			writeln!(
 				f,

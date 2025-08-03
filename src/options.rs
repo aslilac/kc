@@ -135,7 +135,7 @@ impl Options {
 					options.reporter = TotalLines;
 				}
 				_ => {
-					eprintln!("unrecognized option: {}", arg);
+					eprintln!("unrecognized option: {arg}",);
 					exit(1);
 				}
 			}

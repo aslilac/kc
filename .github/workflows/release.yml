@@ -2,7 +2,7 @@ name: release
 
 on:
   push:
-    tags: ["v*"]
+    tags: ["v*.*.*"]
 
 jobs:
   publish:
@@ -10,10 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Checkout
 
-      - uses: actions/cache@v3
+      - run: |
+          version="v$(cat Cargo.toml | grep -m 1 "version" | sed -r "s/version *= *\"([[:digit:].]+)\"/\1/")"
+          if [ "$version" != "${{ github.ref_name }}" ]; then
+            echo "tag ${{ github.ref_name }} does not match version $version in Cargo.toml"
+            exit 1
+          fi
+        name: Version
+
+      - uses: actions/cache@v4
         name: Configure cache
         with:
           path: |
@@ -22,10 +30,8 @@ jobs:
           key: publish-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: publish-cargo-
 
-      - run: |
-          rustup toolchain add nightly
-          rustup default nightly
-        name: Prepare
+      - uses: dtolnay/rust-toolchain@stable
+        name: Configure Rust
 
       - run: cargo test
         name: Test
@@ -70,10 +76,10 @@ jobs:
     needs: publish
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         name: Checkout
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         name: Configure cache
         with:
           path: |
@@ -82,11 +88,10 @@ jobs:
           key: release-${{ matrix.release.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: release-${{ matrix.release.target }}-cargo-
 
-      - run: |
-          rustup toolchain add nightly
-          rustup default nightly
-          rustup target add ${{ matrix.release.target }}
-        name: Prepare — ${{ matrix.release.target }}
+      - uses: dtolnay/rust-toolchain@stable
+        name: Configure Rust
+        with:
+          targets: ${{ matrix.release.target }}
 
       - run: cargo build --target ${{ matrix.release.target }} --release
         name: Build — ${{ matrix.release.target }}
@@ -107,7 +112,6 @@ jobs:
 
       - uses: softprops/action-gh-release@v1
         name: Publish
-        # prerelease: true
         with:
           files: ./build/${{ matrix.release.target }}/release/kc-${{ github.ref_name }}-${{ matrix.release.target }}.*
 

@@ -47,8 +47,7 @@ impl HtmlReporter {
 
 			if remaining_lines > 0 {
 				println!(
-					"\t<div aria-hidden title=\"Other languages\" style=\"background-color: gray; flex-grow: {}\"></div>",
-					remaining_lines,
+					"\t<div aria-hidden title=\"Other languages\" style=\"background-color: gray; flex-grow: {remaining_lines}\"></div>",
 				);
 			}
 		}
@@ -57,7 +56,7 @@ impl HtmlReporter {
 		print!(
 			"<table>\n\
 			<colgroup><col /><col width=\"15%\" /><col width=\"15%\" /></colgroup>\n\
-			<th>Language</th><th>Lines</th><th>Blank</th>\n"
+			\t<th>Language</th><th>Lines</th><th>Blank</th>\n\n"
 		);
 		{
 			for stat in summaries.iter() {

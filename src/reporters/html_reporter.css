@@ -1,5 +1,5 @@
 :root {
-	font-family: Avenir, Montserrat, Corbel, "URW Gothic", source-sans-pro, sans-serif;
+	font-family: Avenir, Montserrat, Corbel, ui-sans-serif, sans-serif;
 	font-weight: normal;
 }
 
@@ -42,5 +42,5 @@ td {
 
 td {
 	border-bottom: 1px dotted black;
-	padding: 0.2em 0;
+	padding: 0.3em 0;
 }
