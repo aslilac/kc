@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 on:
   push:
@@ -6,8 +6,9 @@ on:
 
 jobs:
   publish:
-    name: crates.io
     runs-on: ubuntu-latest
+
+    name: Publish
 
     steps:
       - uses: actions/checkout@v4
@@ -21,15 +22,6 @@ jobs:
           fi
         name: Verify version
 
-      - uses: actions/cache@v4
-        name: Configure cache
-        with:
-          path: |
-            ~/.cargo/
-            ./build/
-          key: ${{ github.workflow }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ github.workflow }}-cargo-
-
       - uses: dtolnay/rust-toolchain@stable
         name: Configure Rust
 
@@ -41,7 +33,10 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
-  release:
+      - uses: softprops/action-gh-release@v1
+        name: Release
+
+  package:
     strategy:
       fail-fast: false
       matrix:
@@ -71,51 +66,48 @@ jobs:
             target: x86_64-apple-darwin
             executable: kc
 
-    name: ${{ matrix.release.target }}
+    name: Package.${{ matrix.release.target }}
+
     runs-on: ${{ matrix.release.os }}
-    needs: publish
+
+    needs:
+      - publish
 
     steps:
       - uses: actions/checkout@v4
         name: Checkout
 
-      - uses: actions/cache@v4
-        name: Configure cache
-        with:
-          path: |
-            ~/.cargo/
-            ./build/
-          key: release-${{ matrix.release.target }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: release-${{ matrix.release.target }}-cargo-
-
       - uses: dtolnay/rust-toolchain@stable
         name: Configure Rust
         with:
-          targets: ${{ matrix.release.target }}
+          target: ${{ matrix.release.target }}
 
       - run: cargo build --target ${{ matrix.release.target }} --release
-        name: Build — ${{ matrix.release.target }}
+        name: Build
 
-      - run: tar -a -cf kc-${{ github.ref_name }}-${{ matrix.release.target }}.tar.gz ${{ matrix.release.executable }}
+      - run: mkdir dist/
+        name: Prepare for packaging
+
+      # Create .tar.gz files for Linux and macOS
+      - run: tar -a -cf ../../../dist/kc-${{ github.ref_name }}-${{ matrix.release.target }}.tar.gz ${{ matrix.release.executable }}
         name: Package (tar) — ${{ matrix.release.target }}
-        working-directory: ./build/${{ matrix.release.target }}/release/
-
-      - run: zip -r kc-${{ github.ref_name }}-${{ matrix.release.target }}.zip ${{ matrix.release.executable }}
-        name: Package (zip) — ${{ matrix.release.target }}
         working-directory: ./build/${{ matrix.release.target }}/release/
         if: ${{ !startsWith(matrix.release.os, 'windows') }}
 
-      - run: Compress-Archive ${{ matrix.release.executable }} -DestinationPath kc-${{ github.ref_name }}-${{ matrix.release.target }}.zip
+      # Create .zip files for Linux and macOS
+      - run: zip -r ../../../dist/kc-${{ github.ref_name }}-${{ matrix.release.target }}.zip ${{ matrix.release.executable }}
+        name: Package (zip) — ${{ matrix.reclease.target }}
+        working-directory: ./build/${{ matrix.release.target }}/release/
+        if: ${{ !startsWith(matrix.release.os, 'windows') }}
+
+      # Create .zip files for Windows
+      - run: Compress-Archive ${{ matrix.release.executable }} -DestinationPath ../../../dist/kc-${{ github.ref_name }}-${{ matrix.release.target }}.zip
         name: Package (zip) — ${{ matrix.release.target }}
         working-directory: ./build/${{ matrix.release.target }}/release/
         if: ${{ startsWith(matrix.release.os, 'windows') }}
 
+      # Upload archives to a Github release for this version
       - uses: softprops/action-gh-release@v1
         name: Publish
         with:
-          files: ./build/${{ matrix.release.target }}/release/kc-${{ github.ref_name }}-${{ matrix.release.target }}.*
-
-      # We don't want the archives to be stored in the cache of the build directory
-      - run: rm kc-${{ github.ref_name }}-${{ matrix.release.target }}.*
-        name: Cleanup
-        working-directory: ./build/${{ matrix.release.target }}/release/
+          files: ./dist/${{ matrix.release.target }}/release/kc-${{ github.ref_name }}-${{ matrix.release.target }}.*
