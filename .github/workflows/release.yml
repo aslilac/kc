@@ -62,10 +62,6 @@ jobs:
             target: aarch64-apple-darwin
             executable: kc
 
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            executable: kc
-
     name: Package.${{ matrix.release.target }}
 
     runs-on: ${{ matrix.release.os }}
@@ -91,19 +87,19 @@ jobs:
       # Create .tar.gz files for Linux and macOS
       - run: tar -a -cf ../../../dist/kc-${{ github.ref_name }}-${{ matrix.release.target }}.tar.gz ${{ matrix.release.executable }}
         name: Package (tar) — ${{ matrix.release.target }}
-        working-directory: ./build/${{ matrix.release.target }}/release/
+        working-directory: ./.build/${{ matrix.release.target }}/release/
         if: ${{ !startsWith(matrix.release.os, 'windows') }}
 
       # Create .zip files for Linux and macOS
       - run: zip -r ../../../dist/kc-${{ github.ref_name }}-${{ matrix.release.target }}.zip ${{ matrix.release.executable }}
         name: Package (zip) — ${{ matrix.reclease.target }}
-        working-directory: ./build/${{ matrix.release.target }}/release/
+        working-directory: ./.build/${{ matrix.release.target }}/release/
         if: ${{ !startsWith(matrix.release.os, 'windows') }}
 
       # Create .zip files for Windows
       - run: Compress-Archive ${{ matrix.release.executable }} -DestinationPath ../../../dist/kc-${{ github.ref_name }}-${{ matrix.release.target }}.zip
         name: Package (zip) — ${{ matrix.release.target }}
-        working-directory: ./build/${{ matrix.release.target }}/release/
+        working-directory: ./.build/${{ matrix.release.target }}/release/
         if: ${{ startsWith(matrix.release.os, 'windows') }}
 
       # Upload archives to a Github release for this version

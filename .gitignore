@@ -3,6 +3,7 @@
 .idea/
 .nova/
 .vscode/
+.build/
 build/
 dist/
 node_modules/
