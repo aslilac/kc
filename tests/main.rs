@@ -3,7 +3,7 @@ use std::process::Command;
 
 mod setup;
 
-const EXE: &str = "./build/release/kc";
+const EXE: &str = "./.build/release/kc";
 
 #[test]
 fn self_check() {
